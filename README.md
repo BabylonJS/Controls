@@ -5,7 +5,7 @@
 
 **Any questions?** Here is our official [forum](https://forum.babylonjs.com/).
 
-You can find documentation for the controls [here](https://doc.babylonjs.com)
+You can find documentation for the controls [here](https://doc.babylonjs.com/features/controls)
 
 ## npm
 
