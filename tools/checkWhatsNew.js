@@ -13,7 +13,7 @@ if (!process.env["AZURE_PULLREQUESTID"]) {
 
 // Only on PR not once in.
 if (process.env.NPM_USERNAME !== "$(babylon.npm.username)") {
-    done();
+    console.log("On Safe Branch, no need to check.")
     return;
 };
 
