@@ -12,7 +12,7 @@ if (!process.env["AZURE_PULLREQUESTID"]) {
 }
 
 // Compare what's new with the current one in the preview release folder.
-const url = "https://rawgit.com/BabylonJS/Controls/master/dist/what's%20new.md";
+const url = "https://raw.githubusercontent.com/BabylonJS/Controls/master/what's%20new.md";
 https.get(url, res => {
     res.setEncoding("utf8");
     let oldData = "";
