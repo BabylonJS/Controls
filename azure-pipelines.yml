@@ -8,8 +8,23 @@ pr:
     - master
 
 jobs:
-- job: Build
-  displayName: '1. Build'
+- job: WhatsNewUpdate
+  displayName: '1. What s New Update'
+  pool:
+    vmImage: 'Ubuntu-16.04'
+    demands: npm
+  steps:
+  - task: Npm@1
+    displayName: 'npm install'
+    inputs:
+      verbose: false
+  - script: 'npm run whatsNew'
+    displayName: 'Whats new'
+    env:
+      AZURE_PULLREQUESTID: $(System.PullRequest.PullRequestId)
+
+- job: TscBuild
+  displayName: '2. Tsc Build'
   pool:
     vmImage: 'Ubuntu-16.04'
     demands: npm
@@ -19,4 +34,4 @@ jobs:
     inputs:
       verbose: false
   - script: 'npm run build'
-    displayName: 'Npm Tsc Build'
+    displayName: 'Tsc Build'

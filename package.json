@@ -31,7 +31,8 @@
   "scripts": {
     "build": "tsc --inlineSources --sourceMap true --declaration true --outDir ./dist",
     "start": "npx webpack-dev-server -d --open",
-    "devServer": "npx webpack-dev-server -d"
+    "devServer": "npx webpack-dev-server -d",
+    "whatsNew": "node tools/checkWhatsNew.js"
   },
   "devDependencies": {
     "ts-loader": "^5.3.3",
