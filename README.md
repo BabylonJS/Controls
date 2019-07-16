@@ -1,6 +1,6 @@
 # Babylon.js controls
 
-[![Build Status](https://dev.azure.com/babylonjs/ContinousIntegration/_apis/build/status/CI?branchName=master)](https://dev.azure.com/babylonjs/ContinousIntegration/_build/latest?definitionId=1&branchName=master)
+[![Build Status](https://dev.azure.com/babylonjs/ContinousIntegration/_apis/build/status/Controls%20CI?branchName=master)](https://dev.azure.com/babylonjs/ContinousIntegration/_build/latest?definitionId=4&branchName=master)
 [![Twitter](https://img.shields.io/twitter/follow/babylonjs.svg?style=social&label=Follow)](https://twitter.com/intent/follow?screen_name=babylonjs)
 
 **Any questions?** Here is our official [forum](https://forum.babylonjs.com/).
