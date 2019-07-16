@@ -1,0 +1,22 @@
+trigger:
+- master
+
+pr:
+  autoCancel: true
+  branches:
+    include:
+    - master
+
+jobs:
+- job: Build
+  displayName: '1. Build'
+  pool:
+    vmImage: 'Ubuntu-16.04'
+    demands: npm
+  steps:
+  - task: Npm@1
+    displayName: 'npm install'
+    inputs:
+      verbose: false
+  - script: 'npm run build'
+    displayName: 'Npm Tsc Build'
