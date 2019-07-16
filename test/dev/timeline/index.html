@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="description" content="Stitching webm made easy">
+    
+    <title>Timeline</title>
+
+    <link rel="shortcut icon" href="/assets/favicon.ico">
+    <link rel="icon" type="image/png" href="/assets/favicon.ico">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.typekit.net/cta4xsb.css">
+    <link rel="stylesheet" href="/assets/common.css">
+
+    <style>
+        video {
+            width: 390px;
+            height: 200px;
+        }
+
+        .wrapper {
+            display: grid;
+            grid-template-columns: auto 1024px auto;
+            grid-template-rows: auto 40px 40px auto 160px 40px 40px;
+        }
+
+        .headerLogo {
+            grid-column: 2;
+            grid-row: 1;
+            background-color: var(--main-bg-color-dark);
+        }
+        .headerLogo > a > img {
+            width: auto;
+            height: 80px;
+            margin-left: 10px;
+        }
+        .title {
+            grid-column: 2;
+            grid-row: 2;
+            background-color: var(--main-bg-color-dark);
+            font-size: 20px;
+            line-height: 40px;
+            padding-left: 5px;
+        }
+        .subTitle {
+            grid-column: 2;
+            grid-row: 3;
+            background-color: var(--main-bg-color-dark);
+            line-height: 40px;
+            padding-left: 5px;
+        }
+        .start {
+            grid-column: 2;
+            grid-row: 4;
+        }
+        .start > video {
+            width: 1024px;
+            height: 580px;
+        }
+        .start > video:focus {
+            outline: none;
+        }
+        .timelineContainer {
+            grid-column: 2;
+            grid-row: 5;
+            background-color: var(--main-bg-color-dark);
+            line-height: 160px;
+        }
+        #timelineCanvas {
+            width: 100%;
+            height: 100%;
+        }
+        .timeMarkers {
+            grid-column: 2;
+            grid-row: 6;
+            background-color: var(--main-bg-color-dark);
+            line-height: 40px;
+        }
+        .sliderLeftText {
+            float: left;
+            padding-left: 10px;
+        }
+        .sliderRightText {
+            float: right;
+            padding-right: 10px;
+        }
+        .sliderContainer {
+            grid-column: 2;
+            grid-row: 7;
+            background-color: var(--main-bg-color-dark);
+            line-height: 40px;
+        }
+
+        #sliderTime {
+            max-width: 904px;
+        }
+        #sliderZoom {
+            max-width: 878px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrapper">
+        <div class="headerLogo">
+            <a href="/">
+                <img src="/assets/logo.svg"></img>
+            </a>
+        </div>
+        <div class="title">
+            This demo represents a timeline rendered through WebGL to speed up thumbnails management.
+        </div>
+        <div class="subTitle">
+            Using the power of the GPU can dramatically improve the user experience whilst scrolling accross thousands of pictures.
+        </div>
+        <div class="start">
+            <video id="mainVideo" controls="true" src="/assets/timeline/test.mp4"></video>
+        </div>
+        <div class="timelineContainer">
+            <canvas id="timelineCanvas"></canvas>
+        </div>
+        <div class="timeMarkers">
+            <span class="sliderLeftText" id="startTime">Start</span>
+            <input class="slider" id="sliderTime" type="range">
+            <span class="sliderRightText" id="endTime">End</span>
+        </div>
+        <div class="sliderContainer">
+            <span class="sliderLeftText">Zoom 0%</span>
+            <input class="slider" id="sliderZoom" type="range">
+            <span class="sliderRightText">100%</span>
+        </div>
+    </div>
+
+    <script src="/timeline.js"></script>
+</body>
+
+</html>

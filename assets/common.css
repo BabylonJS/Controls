@@ -1,0 +1,104 @@
+:root {
+    --main-bg-color: #2a2342;
+    --main-bg-color-dark: #201936;
+    --main-txt-color: #ffffff;
+    --main-padding: 15px; 
+}
+
+html,
+body {
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    background-color: var(--main-bg-color);
+    color: var(--main-txt-color);
+    font-family: "acumin-pro";
+}
+
+.slider {
+    -webkit-appearance: none;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+    outline: none;
+    margin-left: 10px;
+    margin-right: 10px;
+    background-color: transparent;
+}
+
+/*Chrome -webkit */
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    border: 2px solid white;
+    border-radius: 50%;
+    background: var(--footer-background);
+    margin-top: -10px;
+}
+.slider::-webkit-slider-runnable-track {
+    height: 2px;
+    -webkit-appearance: none;
+    background-color: white;
+}
+
+/** FireFox -moz */
+.slider::-moz-range-progress {
+background-color: white;
+height: 2px; 
+}
+.slider::-moz-range-thumb{
+    width: 20px;
+    height: 20px;
+    border: 2px solid white;
+    border-radius: 50%;
+    background: var(--footer-background);
+}
+.slider::-moz-range-track {
+    background: white;
+    height: 2px;
+}
+
+/** IE -ms */
+.slider::-ms-track {
+    height: 2px;
+    
+    /*remove bg colour from the track, we'll use ms-fill-lower and ms-fill-upper instead */
+    background: transparent;
+    
+    /*leave room for the larger thumb to overflow with a transparent border */
+    border-color: transparent;
+    border-width: 10px 0;
+
+    /*remove default tick marks*/
+    color: transparent;
+}
+.slider::-ms-fill-lower {
+    background: white;
+    border-radius: 5px;
+}
+.slider::-ms-fill-upper {
+    background: white;
+    border-radius: 5px;
+}
+.slider::-ms-thumb {
+    width: 16px;
+    height: 16px;
+    border: 2px solid white;
+    border-radius: 50%;
+    margin-top: 0px;
+}
+
+a {
+    color: #BB464B;
+    text-decoration: unset;
+}
+a:hover {
+    color: #BB464B;
+}
+a:visited {
+    color: #BB464B;
+}
+a:focus {
+    color: #BB464B;
+}

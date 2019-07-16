@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="description" content="Stitching webm made easy">
+    
+    <title>Controls</title>
+
+    <link rel="shortcut icon" href="/assets/favicon.ico">
+    <link rel="icon" type="image/png" href="/assets/favicon.ico">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.typekit.net/cta4xsb.css">
+    <link rel="stylesheet" href="/assets/common.css">
+
+    <style>
+        .wrapper {
+            display: grid;
+            grid-template-columns: auto 1024px auto;
+        }
+
+        .headerLogo {
+            grid-column: 2;
+            grid-row: 1;
+            background-color: var(--main-bg-color-dark);
+        }
+        .headerLogo > a > img {
+            width: auto;
+            height: 80px;
+            margin-left: 10px;
+        }
+        .title {
+            grid-column: 2;
+            grid-row: 2;
+            background-color: var(--main-bg-color-dark);
+            font-size: 20px;
+
+            padding: 5px;
+        }
+        .subTitle {
+            grid-column: 2;
+            grid-row: 3;
+            background-color: var(--main-bg-color-dark);
+
+            padding: 5px;
+        }
+        .content {
+            grid-column: 2;
+            grid-row: 4;
+
+            padding: 5px;
+        }
+        .footer {
+            grid-column: 2;
+            grid-row: 5;
+            background-color: var(--main-bg-color-dark);
+
+            padding: 5px;
+        }
+        ul {
+            list-style-type:none
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrapper">
+        <div class="headerLogo">
+            <a href="http://www.babylonjs.com">
+                <img src="/assets/logo.svg"></img>
+            </a>
+        </div>
+        <div class="title">
+            This is the main entry point of the <a href="https://doc.babylonjs.com/features/controls">Babylon.js Controls library</a> during development.
+        </div>
+        <div class="subTitle">
+            <p>Babylon.js controls are a set of regular web controls that used hardware accelerated rendering through <a href="https://www.babylonjs.com">Babylon.js</a> to provide blazing fast dedicated controls.</p>
+
+            <p>Babylon.js provides an unified API on top of WebGL, WebGL2 and WebGPU that <a href="https://doc.babylonjs.com/features/controls">controls</a> can leverage to unleash the raw power of your GPU.</p>
+
+            <p>You can find below the current list of controls we support :</p>
+        </div>
+        <div class="content">
+            <ul>
+                <li>
+                    <a href="/test/dev/timeline">Timeline</a>: a video timeline helping to display scrolling thumbnails awesomely fast.
+                    <a href="/test/dev/timeline"><img src="/assets/timeline/index-demo.png"></a>
+                </li>
+            </ul>
+        </div>
+        <div class="footer">
+            In case of issues, do not hesitate to consult our <a href="https://forum.babylonjs.com/">forum</a>
+        </div>
+    </div>
+</body>
+
+</html>
