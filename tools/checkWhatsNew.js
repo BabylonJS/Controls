@@ -23,7 +23,6 @@ https.get(url, res => {
         fs.readFile("./what's new.md", "utf-8", function(err, newData) {
             console.log(newData)
             if (err || oldData != newData) {
-                done();
                 return;
             }
 
