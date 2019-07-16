@@ -22,6 +22,7 @@ jobs:
     displayName: 'Whats new'
     env:
       AZURE_PULLREQUESTID: $(System.PullRequest.PullRequestId)
+      NPM_USERNAME: $(babylon.npm.username)
 
 - job: TscBuild
   displayName: '2. Tsc Build'

@@ -11,6 +11,12 @@ if (!process.env["AZURE_PULLREQUESTID"]) {
     return;
 }
 
+// Only on PR not once in.
+if (process.env.NPM_USERNAME !== "$(babylon.npm.username)") {
+    done();
+    return;
+};
+
 // Compare what's new with the current one in the preview release folder.
 const url = "https://raw.githubusercontent.com/BabylonJS/Controls/master/what's%20new.md";
 https.get(url, res => {
