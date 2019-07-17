@@ -32,7 +32,8 @@
     "build": "tsc --inlineSources --sourceMap true --declaration true --outDir ./dist",
     "start": "npx webpack-dev-server -d --open",
     "devServer": "npx webpack-dev-server -d",
-    "whatsNew": "node tools/checkWhatsNew.js"
+    "whatsNew": "node tools/checkWhatsNew.js",
+    "netlifyDist": "webpack --env=prod"
   },
   "devDependencies": {
     "ts-loader": "^5.3.3",
