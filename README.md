@@ -7,6 +7,16 @@
 
 You can find documentation for the controls [here](https://doc.babylonjs.com/features/controls)
 
+## Running locally
+
+After cloning the repo, running locally during development is all the simplest:
+```
+npm install
+npm run start
+```
+
+For VSCode users, if you have installed the Chrome Debugging extension, you can start debugging within VSCode by using the appropriate launch menu.
+
 ## npm
 
 Babylon.js controls are published on npm with full typing support. To install, use:
