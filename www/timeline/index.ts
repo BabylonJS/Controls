@@ -1,4 +1,4 @@
-import { Timeline } from "../../../src/timeline";
+import { Timeline } from "../../src/timeline";
 
 const mainVideo = document.getElementById("mainVideo") as HTMLVideoElement;
 const timelineCanvas = document.getElementById("timelineCanvas") as HTMLCanvasElement;
@@ -38,10 +38,10 @@ function main() {
         totalDuration: 60,
         thumbnailWidth: 128,
         thumbnailHeight: 120,
-        loadingTextureURI: "/assets/timeline/loading.png",
+        loadingTextureURI: "./assets/loading.png",
         getThumbnailCallback: (time: number) => {
             const hiddenVideo = document.createElement("video");
-            hiddenVideo.src = "/assets/timeline/test.mp4";
+            hiddenVideo.src = "./assets/test.mp4";
 
             hiddenVideo.setAttribute("muted", "true");
             hiddenVideo.setAttribute("autoplay", "true");
@@ -52,7 +52,7 @@ function main() {
             hiddenVideo.currentTime = time;
             return hiddenVideo;
 
-            //return "/assets/loading.png";
+            //return "./assets/loading.png";
         }
     });
 

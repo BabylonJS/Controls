@@ -1,6 +1,6 @@
 const path = require("path");
 
-var TEST_DIR = path.resolve(__dirname, "./test/dev");
+var DIST_DIR = path.resolve(__dirname, "./www");
 var DEV_DIR = path.resolve(__dirname, "./.temp");
 
  var buildConfig = function(env) {
@@ -8,14 +8,17 @@ var DEV_DIR = path.resolve(__dirname, "./.temp");
     return {
         context: __dirname,
         entry: {
-            timeline: TEST_DIR + "/timeline/index.ts",
+            timeline: DIST_DIR + "/timeline/index.ts",
         },
         output: {
-            path: DEV_DIR,
-            publicPath: "/",
+            path: (isProd ? DIST_DIR : DEV_DIR) + "/scripts/",
+            publicPath: "www/scripts/",
             filename: "[name].js",
         },
         devtool: isProd ? "none" : "source-map",
+        devServer: {
+            openPage: '/www'
+        },
         resolve: {
             extensions: [".ts", ".js"]
         },
