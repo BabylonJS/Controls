@@ -9,6 +9,7 @@ var DEV_DIR = path.resolve(__dirname, "./.temp");
         context: __dirname,
         entry: {
             timeline: DIST_DIR + "/timeline/index.ts",
+            resizer: DIST_DIR + "/resizer/index.ts",
         },
         output: {
             path: (isProd ? DIST_DIR : DEV_DIR) + "/scripts/",

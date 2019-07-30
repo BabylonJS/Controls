@@ -1,4 +1,5 @@
 import { Timeline } from "../../src/timeline";
+import { Resizer } from "../../src/resizer";
 
 const mainVideo = document.getElementById("mainVideo") as HTMLVideoElement;
 const timelineCanvas = document.getElementById("timelineCanvas") as HTMLCanvasElement;
@@ -34,7 +35,8 @@ const initSliders = function() {
 function main() {
     initSliders();
 
-    const timeline = new Timeline(timelineCanvas, {
+    const resizer = new Resizer(timelineCanvas);
+    const timeline = new Timeline(resizer, {
         totalDuration: 60,
         thumbnailWidth: 128,
         thumbnailHeight: 120,
@@ -50,7 +52,10 @@ function main() {
             hiddenVideo.autoplay = true;
 
             hiddenVideo.currentTime = time;
-            return hiddenVideo;
+
+            return resizer.getResizedTexture(hiddenVideo, { width: 128, height: 100 });
+
+            // return hiddenVideo;
 
             //return "./assets/loading.png";
         }
@@ -65,12 +70,18 @@ function main() {
     });
 
     sliderTime.addEventListener("input", function() {
+        if (!mainVideo.paused) {
+            mainVideo.pause();
+        }
         var value = parseFloat(this.value);
         timeline.setCurrentTime(value);
         setTimes(timeline);
     });
     
     sliderZoom.addEventListener("input", function() {
+        if (!mainVideo.paused) {
+            mainVideo.pause();
+        }
         var value = parseFloat(this.value) / 10;
         timeline.setVisibleDurationZoom(value);
         setTimes(timeline);

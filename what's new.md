@@ -7,3 +7,6 @@
 
 ### Timeline
 - Scrollable Timeline control for videos [Doc](https://doc.babylonjs.com/features/timeline) / [Sebavan](https://github.com/sebavan/))
+
+### Resizer
+- Resizer control for images (Can be use to manage inputs of the timeline) [Doc](https://doc.babylonjs.com/features/resizer) / [Sebavan](https://github.com/sebavan/))

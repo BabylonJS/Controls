@@ -1,16 +1,15 @@
 import { Engine } from "@babylonjs/core/Engines/engine";
 import { EffectWrapper, EffectRenderer } from "@babylonjs/core/Materials/effectRenderer";
-
 import { BaseTexture } from "@babylonjs/core/Materials/Textures/baseTexture";
 import { Texture } from "@babylonjs/core/Materials/Textures/texture";
-import { HtmlElementTexture } from "@babylonjs/core/Materials/Textures/htmlElementTexture";
-
 import { Constants } from "@babylonjs/core/Engines/constants";
-
 import { Logger } from "@babylonjs/core/Misc/logger";
 import { Scalar } from "@babylonjs/core/Maths/math.scalar";
 
 import { ShaderConfiguration } from "./shader";
+
+import { BaseControl } from "../coreControls/baseControl";
+import { elementToTexture } from "../coreControls/elementToTexture";
 
 /**
  * Defines a set of options provided to the timeline.
@@ -36,9 +35,14 @@ export interface ITimelineOptions {
      * Callback to implement to provide back the required picture info.
      * 
      * This will be regularly called for each needed thumbnail by specifying the time
-     * of the required picture. It can return either a video, a canvas or a url.
+     * of the required picture. It can return either a texture, a video, a canvas or a url.
      */
-    getThumbnailCallback: (time: number) => HTMLCanvasElement | HTMLVideoElement | string;
+    getThumbnailCallback: (time: number) => BaseTexture | HTMLCanvasElement | HTMLVideoElement | string;
+    /**
+     * Defines whether the closest existing/loaded thumbnail should be use in place of the loading texture.
+     * True by default.
+     */
+    useClosestThumbnailAsLoadingTexture?: boolean;
 }
 
 /**
@@ -50,10 +54,8 @@ export interface ITimelineOptions {
  * Thumbnail generation is out of scope of the control. They are the responsibility of the client code
  * which can dynamically generate or pre generate them on a server.
  */
-export class Timeline {
+export class Timeline extends BaseControl {
     private readonly _options: ITimelineOptions;
-    private readonly _canvas: HTMLCanvasElement;
-    private readonly _engine: Engine;
 
     private _effectRenderer: EffectRenderer;
     private _effectWrapper: EffectWrapper;
@@ -73,6 +75,7 @@ export class Timeline {
     private _heightOffset: number;
 
     private _shouldRender: boolean;
+    private _renderFunction: () => void;
 
     /**
      * Gets the total duration of the video the canvas has been configured to 
@@ -137,13 +140,20 @@ export class Timeline {
 
     /**
      * Instantiates a timeline object able to display efficiently a video timeline.
-     * @param canvas defines the canvas the timeline should be drawn in.
+     * @param parent defines the parent of the control. It could be either:
+     *   - A canvas element: the canvas we want to render the control in.
+     *   - An engine instance: the Babylon.js engine to use to render the control.
+     *   - Another Babylon.js control: this allows sharing the engine cross controls to mix and match them for instance.
      * @param options defines the set of options used by the timeline control.
      */
-    constructor(canvas: HTMLCanvasElement, options: ITimelineOptions) {
+    constructor(parent: BaseControl | Engine | HTMLCanvasElement, options: ITimelineOptions) {
+        super(parent);
+
+        // Default options for the timeline.
+        if (options.useClosestThumbnailAsLoadingTexture === undefined) {
+            options.useClosestThumbnailAsLoadingTexture = true;
+        }
         this._options = options;
-        this._canvas = canvas;
-        this._engine = new Engine(this._canvas, false);
 
         // Initializes all our
         this._initializeDurations();
@@ -157,17 +167,36 @@ export class Timeline {
      */
     public runRenderLoop(callback?: () => void): void {
         this._shouldRender = true;
-
-        this._engine.runRenderLoop(() => {
+        // Keep track of the render function to isolate it from potentially other controls
+        // Render loops. It helps being able to stop only one of them.
+        this._renderFunction = () => {
             this.render(callback);
-        });
+        };
+
+        this.engine.runRenderLoop(this._renderFunction);
     }
 
     /**
      * Stops rendering the timeline in the canvas.
      */
     public stopRenderLoop(): void {
-        this._engine.stopRenderLoop();
+        this.engine.stopRenderLoop(this._renderFunction);
+    }
+
+    /**
+     * Caches one thumbnail for a given time. This can be used to preload thumbnails if needed.
+     * @param textureData defines the texture data as a texture, a video, a canvas or a url.
+     * @param time defines the time the thumbnail should be used at.
+     * @returns the thumbnail texture.
+     */
+    public addThumbnail(textureData: BaseTexture | HTMLCanvasElement | HTMLVideoElement | string, time: number): BaseTexture {
+        // Converts the texture data to an actual babylon.js texture.
+        let thumbnail = elementToTexture(this.engine, textureData, "" + time);
+
+        // Store in cache.
+        this._thumbnails[time] = thumbnail;
+
+        return thumbnail;
     }
 
     /**
@@ -281,7 +310,7 @@ export class Timeline {
      */
     public resize(): void {
         // Updates engine sizes.
-        this._engine.resize();
+        this.engine.resize();
         // Resets the viewport to the new canvas size.
         this._effectRenderer.setViewport();
         // Initializes the rest of the durations impacted by the canvas size.
@@ -303,7 +332,9 @@ export class Timeline {
         this._loadingThumbnail.dispose();
         this._effectWrapper.dispose();
         this._effectRenderer.dispose();
-        this._engine.dispose();
+        this._renderFunction = null;
+
+        super.dispose();
     }
 
     private _initializeDurations(): void {
@@ -324,7 +355,7 @@ export class Timeline {
     private _initializeCanvasRelativeDurations(): void {
         // Compute the max number of thumbnails we can see in the canvas without scrolling.
         // It needs to be an integer for "UX purpose".
-        this._visibleThumbnails = Math.ceil(this._canvas.clientWidth / this._options.thumbnailWidth);
+        this._visibleThumbnails = Math.ceil(this.canvas.clientWidth / this._options.thumbnailWidth);
 
         // Compute the scale to apply in the shader for each quads to ensure the
         // number of thumbnails fit in the canvas.
@@ -335,11 +366,11 @@ export class Timeline {
         // Compute the height scale to apply on a thumbnail in the shader
         // in order to respect the provided sizes.
         const ratio = this._options.thumbnailHeight / this._options.thumbnailWidth;
-        const effectiveWidth = this._canvas.width / this._visibleThumbnails;
+        const effectiveWidth = this.canvas.width / this._visibleThumbnails;
         const effectiveHeight = effectiveWidth * ratio;
         // Due to shader optim detailled around the vertex shader code, 
         // shaderScale = scale * 2.;
-        this._heightScale = effectiveHeight / this._canvas.height * 2;
+        this._heightScale = effectiveHeight / this.canvas.height * 2;
 
         // Compute a small offset for the height to center the thumbnail in the canvas
         // vertically.
@@ -347,7 +378,7 @@ export class Timeline {
         // But due to shader optim detailled around the vertex shader code, 
         // shaderOffset = offset * 2. - 1.;
         // shaderOffset = (canvasH - effectiveH) / canvasH - 1
-        this._heightOffset = (this._canvas.height - effectiveHeight) / this._canvas.height - 1;
+        this._heightOffset = (this.canvas.height - effectiveHeight) / this.canvas.height - 1;
 
         // Reinitializes the total number of thumbnails as it might be impacted
         // during a resize.
@@ -356,21 +387,21 @@ export class Timeline {
 
     private _initializeTextures(): void {
         // Prepares the loading thumbnail.
-        this._loadingThumbnail = new Texture(this._options.loadingTextureURI, this._engine, true, true, Constants.TEXTURE_NEAREST_NEAREST);
+        this._loadingThumbnail = new Texture(this._options.loadingTextureURI, this.engine, true, true, Constants.TEXTURE_NEAREST_NEAREST);
         // And the thumbnails cache.
         this._thumbnails = { };
     }
 
     private _initializeRenderer(): void {
         // Use the smallest module to render a quad on screen (no need for a full scene)
-        this._effectRenderer = new EffectRenderer(this._engine, {
+        this._effectRenderer = new EffectRenderer(this.engine, {
             positions: [1, 1, 0, 1, 0, 0, 1, 0],
             indices: [0, 1, 2, 0, 2, 3]
         });
 
         // Wraps a shader in a structure known to the Effect Renderer.
         this._effectWrapper = new EffectWrapper({
-            engine: this._engine,
+            engine: this.engine,
             ...ShaderConfiguration
         });
 
@@ -387,44 +418,7 @@ export class Timeline {
         if (!thumbnail) {
             // If not creates it from the given callback.
             const textureData = this._options.getThumbnailCallback(time);
-
-            // In case of string, load the texture from a URI.
-            if (typeof(textureData) === "string") {
-                thumbnail = new Texture(textureData, this._engine, true, true, Constants.TEXTURE_NEAREST_NEAREST);
-            }
-            else {
-                // Else loads the provided video or canvas element.
-                const htmlElementTexture = new HtmlElementTexture("" + time, textureData, {
-                    engine: this._engine,
-                    generateMipMaps: false,
-                    samplingMode: Constants.TEXTURE_NEAREST_NEAREST,
-                    scene: null
-                });
-                thumbnail = htmlElementTexture;
-
-                const onload = () => {
-                    htmlElementTexture.update(false);
-                    htmlElementTexture.element = null;
-                };
-
-                if (textureData instanceof HTMLVideoElement) {
-                    // Seek to 0 does not raise by default.
-                    // Use loadedData instead
-                    const eventName = time == 0 ? "loadeddata" : "seeked";
-                    textureData.addEventListener(eventName, () => { onload(); });
-                }
-                else {
-                    // Canvas element are considered already ready to be uploaded to GPU.
-                    onload();
-                }
-            }
-
-            // Sets common texture parameters.
-            thumbnail.wrapU = Constants.TEXTURE_CLAMP_ADDRESSMODE;
-            thumbnail.wrapV = Constants.TEXTURE_CLAMP_ADDRESSMODE;
-
-            // Store in cache.
-            this._thumbnails[time] = thumbnail;
+            thumbnail = this.addThumbnail(textureData, time);
         }
 
         // Returns the thumbnail texture only if ready.
@@ -436,6 +430,35 @@ export class Timeline {
         // Render till ready to replace the loading textures by the loaded ones.
         this._shouldRender = true;
 
+        // Returns the loading thumbnail.
+        return this._getLoadingThumbnail(time);
+    }
+
+    private _getLoadingThumbnail(time: number): BaseTexture {
+        // Returns loading thumbnail if closest match has been disabled.
+        if (!this._options.useClosestThumbnailAsLoadingTexture) {
+            return this._loadingThumbnail;
+        }
+
+        const maximumDistance = Math.max(this._totalDuration - time, time);
+        for (let i = 1; i <= maximumDistance; i++) {
+            const before = time - i;
+            if (before > 0) {
+                const thumbnail = this._thumbnails[before];
+                if (thumbnail && thumbnail.isReady()) {
+                    return thumbnail;
+                }
+            }
+            const after = time + i;
+            if (after < this.totalDuration) {
+                const thumbnail = this._thumbnails[after];
+                if (thumbnail && thumbnail.isReady()) {
+                    return thumbnail;
+                }
+            }
+        }
+
+        // No closest match available:
         return this._loadingThumbnail;
     }
 }

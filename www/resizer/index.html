@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="description" content="Timeline Video Control">
+    
+    <title>Resizer</title>
+
+    <link rel="shortcut icon" href="../assets/favicon.ico">
+    <link rel="icon" type="image/png" href="../assets/favicon.ico">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.typekit.net/cta4xsb.css">
+    <link rel="stylesheet" href="../assets/common.css">
+
+    <style>
+        .wrapper {
+            display: grid;
+            grid-template-columns: auto 512px 256px 128px 64px 64px auto;
+            grid-template-rows: auto 40px 80px 512px 40px auto;
+        }
+
+        .headerLogo {
+            grid-column-start: 2;
+            grid-column-end: 7;
+            grid-row: 1;
+            background-color: var(--main-bg-color-dark);
+        }
+        .headerLogo > a > img {
+            width: auto;
+            height: 80px;
+            margin-left: 10px;
+        }
+        .title {
+            grid-column-start: 2;
+            grid-column-end: 7;
+            grid-row: 2;
+            background-color: var(--main-bg-color-dark);
+            font-size: 20px;
+            line-height: 40px;
+            padding-left: 5px;
+        }
+        .subTitle {
+            grid-column-start: 2;
+            grid-column-end: 7;
+            grid-row: 3;
+            background-color: var(--main-bg-color-dark);
+            line-height: 40px;
+            padding-left: 5px;
+        }
+        .before {
+            grid-column: 2;
+            grid-row: 4;
+            background-color: white;
+        }
+        .after1 {
+            grid-column: 3;
+            grid-row: 4;
+            background-color: white;
+        }
+        .after2 {
+            grid-column: 4;
+            grid-row: 4;
+            background-color: white;
+        }
+        .after3 {
+            grid-column: 5;
+            grid-row: 4;
+            background-color: white;
+        }
+        .after4 {
+            grid-column: 6;
+            grid-row: 4;
+            background-color: white;
+        }
+        .control {
+            grid-column-start: 2;
+            grid-column-end: 7;
+            grid-row: 5;
+            background-color: var(--main-bg-color-dark);
+            line-height: 40px;
+            padding-left: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrapper">
+        <div class="headerLogo">
+            <a href="../">
+                <img src="../assets/logo.svg"></img>
+            </a>
+        </div>
+        <div class="title">
+            This demo represents a resizer control leveraging WebGL to speed up resizing images.
+        </div>
+        <div class="subTitle">
+            One of the biggest advantage is that the output can directly be used as a Babylon.js Texture so that if you need to resize thumbnails, they do not need any extra copies a canvas2D would have.
+        </div>
+        <div class="before">
+            <img id="beforePicture" width="512" height="512"></img>
+        </div>
+        <div class="after1">
+            <canvas id="afterPicture1" width="256" height="256"></canvas>
+        </div>
+        <div class="after2">
+            <canvas id="afterPicture2" width="128" height="128"></canvas>
+        </div>
+        <div class="after3">
+            <canvas id="afterPicture3" width="64" height="64"></canvas>
+        </div>
+        <div class="after4">
+            <canvas id="afterPicture4" width="32" height="32"></canvas>
+        </div>
+        <div class="control">
+            <a href="#" id="startResizingButton">Start Resizing</a>
+        </div>
+    </div>
+
+    <script src="../scripts/resizer.js"></script>
+</body>
+
+</html>
