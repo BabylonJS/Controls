@@ -25,8 +25,6 @@ const fragmentShader = `
 
 export const ShaderConfiguration = {
     name: "resizer",
-    // Use the Babylon.js post process one by default.
-    // TODO. Fix upstream control.
     vertexShader: vertexShader,
     fragmentShader,
     attributeNames: ["position"],
