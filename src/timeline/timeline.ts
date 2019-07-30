@@ -387,7 +387,7 @@ export class Timeline extends BaseControl {
 
     private _initializeTextures(): void {
         // Prepares the loading thumbnail.
-        this._loadingThumbnail = new Texture(this._options.loadingTextureURI, this.engine, true, true, Constants.TEXTURE_NEAREST_NEAREST);
+        this._loadingThumbnail = new Texture(this._options.loadingTextureURI, this.engine, true, true, Constants.TEXTURE_BILINEAR_SAMPLINGMODE);
         // And the thumbnails cache.
         this._thumbnails = { };
     }
@@ -440,6 +440,7 @@ export class Timeline extends BaseControl {
             return this._loadingThumbnail;
         }
 
+        // Find the closest available and ready thumbnail.
         const maximumDistance = Math.max(this._totalDuration - time, time);
         for (let i = 1; i <= maximumDistance; i++) {
             const before = time - i;
@@ -449,6 +450,7 @@ export class Timeline extends BaseControl {
                     return thumbnail;
                 }
             }
+
             const after = time + i;
             if (after < this.totalDuration) {
                 const thumbnail = this._thumbnails[after];

@@ -51,7 +51,7 @@ export class Resizer extends BaseControl {
      */
     public resize(textureData: BaseTexture | HTMLCanvasElement | HTMLVideoElement | string): Promise<null> {
         // Converts the texture data to an actual babylon.js texture.
-        const inputTexture = elementToTexture(this.engine, textureData, "input", true, Constants.TEXTURE_BILINEAR_SAMPLINGMODE);
+        const inputTexture = elementToTexture(this.engine, textureData, "input", true, Constants.TEXTURE_TRILINEAR_SAMPLINGMODE);
 
         // Wraps the result in a promise to simplify usage.
         return new Promise((success, _) => {
@@ -87,7 +87,7 @@ export class Resizer extends BaseControl {
      */
     public getResizedTexture(textureData: BaseTexture | HTMLCanvasElement | HTMLVideoElement | string, size: { width: number, height: number }): BaseTexture {
         // Converts the texture data to an actual babylon.js texture.
-        const inputTexture = elementToTexture(this.engine, textureData, "input", true, Constants.TEXTURE_BILINEAR_SAMPLINGMODE);
+        const inputTexture = elementToTexture(this.engine, textureData, "input", true, Constants.TEXTURE_TRILINEAR_SAMPLINGMODE);
 
         // Creates an offscreen texture to render to.
         const outputTexture = this.engine.createRenderTargetTexture(size, { 
@@ -95,7 +95,7 @@ export class Resizer extends BaseControl {
             generateDepthBuffer: false,
             generateMipMaps: false,
             generateStencilBuffer: false,
-            samplingMode: Constants.TEXTURE_NEAREST_NEAREST,
+            samplingMode: Constants.TEXTURE_BILINEAR_SAMPLINGMODE,
             type: Constants.TEXTURETYPE_UNSIGNED_BYTE
          });
          // Ensure it is not ready so far.

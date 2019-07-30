@@ -18,7 +18,7 @@ export function elementToTexture(engine: Engine,
     textureData: BaseTexture | HTMLCanvasElement | HTMLVideoElement | string, 
     name: string,
     generateMipMaps: boolean = false,
-    filteringType: number = Constants.TEXTURE_NEAREST_NEAREST): BaseTexture {
+    filteringType: number = Constants.TEXTURE_BILINEAR_SAMPLINGMODE): BaseTexture {
 
     let texture: BaseTexture;
     // In case of a texture do nothing.
@@ -27,7 +27,7 @@ export function elementToTexture(engine: Engine,
     }
     // In case of string, load the texture from a URI.
     else if (typeof(textureData) === "string") {
-        texture = new Texture(textureData, engine, true, true, filteringType);
+        texture = new Texture(textureData, engine, !generateMipMaps, true, filteringType);
     }
     else {
         // Else loads the provided video or canvas element.
