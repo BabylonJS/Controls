@@ -1,6 +1,9 @@
 trigger:
 - deploy
 
+# no PR builds
+pr: none
+
 jobs:
 - job: Deploy
   displayName: 'Build and Publish'
