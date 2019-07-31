@@ -8,10 +8,8 @@ jobs:
     vmImage: 'Ubuntu-16.04'
     demands: npm
   steps:
-  - task: Npm@1
-    displayName: 'npm install'
-    inputs:
-      verbose: false
+  - script: 'npm install'
+    displayName: 'Npm install
   - script: 'npm run build'
     displayName: 'Tsc Build'
   - script: 'npm run versionUp'
