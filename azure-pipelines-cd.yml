@@ -3,7 +3,7 @@ trigger:
 
 jobs:
 - job: Deploy
-  displayName: '2. Tsc Build'
+  displayName: 'Build and Publish'
   pool:
     vmImage: 'Ubuntu-16.04'
     demands: npm
