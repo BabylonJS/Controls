@@ -9,7 +9,7 @@ jobs:
     demands: npm
   steps:
   - script: 'npm install'
-    displayName: 'Npm install
+    displayName: 'Npm install'
   - script: 'npm run build'
     displayName: 'Tsc Build'
   - script: 'npm run versionUp'
