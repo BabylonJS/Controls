@@ -1,49 +1,50 @@
 {
-  "name": "@babylonjs/controls",
-  "version": "0.0.1",
-  "description": "Babylon.js controls are a set of regular web controls that used hardware accelerated rendering through Babylon.js to provide blazing fast dedicated controls.",
-  "author": {
-    "name": "David CATUHE"
-  },
-  "contributors": [
-    "Sebastien VANDENBERGHE"
-  ],
-  "keywords": [
-    "timeline",
-    "controls",
-    "acceleration",
-    "3D",
-    "2D",
-    "javascript",
-    "html5",
-    "webgl",
-    "webgl2",
-    "webgpu"
-  ],
-  "license": "Apache2",
-  "readme": "README.md",
-  "typings": "dist/src/index.d.ts",
-  "main": "dist/src/index.js",
-  "files": [
-    "dist/src/**",
-    "README.md"
-  ],
-  "scripts": {
-    "build": "tsc --inlineSources --sourceMap true --declaration true --outDir ./dist",
-    "start": "npx webpack-dev-server -d --open",
-    "devServer": "npx webpack-dev-server -d",
-    "whatsNew": "node tools/checkWhatsNew.js",
-    "netlifyDist": "webpack --env=prod"
-  },
-  "devDependencies": {
-    "ts-loader": "^5.3.3",
-    "typescript": "^3.4.5",
-    "webpack": "^4.32.2",
-    "webpack-cli": "^3.3.2",
-    "webpack-dev-server": "^3.4.1",
-    "@babylonjs/core": ">=4.1.0-alpha.8"
-  },
-  "peerDependencies": {
-    "@babylonjs/core": ">=4.1.0-alpha.8"
-  }
+    "name": "@babylonjs/controls",
+    "version": "1.0.0-alpha.1",
+    "description": "Babylon.js controls are a set of regular web controls that used hardware accelerated rendering through Babylon.js to provide blazing fast dedicated controls.",
+    "author": {
+        "name": "David CATUHE"
+    },
+    "contributors": [
+        "Sebastien VANDENBERGHE"
+    ],
+    "keywords": [
+        "timeline",
+        "controls",
+        "acceleration",
+        "3D",
+        "2D",
+        "javascript",
+        "html5",
+        "webgl",
+        "webgl2",
+        "webgpu"
+    ],
+    "license": "Apache2",
+    "readme": "README.md",
+    "typings": "dist/src/index.d.ts",
+    "main": "dist/src/index.js",
+    "files": [
+        "dist/src/**",
+        "README.md"
+    ],
+    "scripts": {
+        "build": "tsc --inlineSources --sourceMap true --declaration true --outDir ./dist",
+        "prePublish": "node tools/publisher.js",
+        "start": "npx webpack-dev-server -d --open",
+        "devServer": "npx webpack-dev-server -d",
+        "whatsNew": "node tools/checkWhatsNew.js",
+        "netlifyDist": "webpack --env=prod"
+    },
+    "devDependencies": {
+        "ts-loader": "^5.3.3",
+        "typescript": "^3.4.5",
+        "webpack": "^4.32.2",
+        "webpack-cli": "^3.3.2",
+        "webpack-dev-server": "^3.4.1",
+        "@babylonjs/core": ">=4.1.0-alpha.8"
+    },
+    "peerDependencies": {
+        "@babylonjs/core": ">=4.1.0-alpha.8"
+    }
 }
