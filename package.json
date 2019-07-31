@@ -30,7 +30,8 @@
     ],
     "scripts": {
         "build": "tsc --inlineSources --sourceMap true --declaration true --outDir ./dist",
-        "prePublish": "node tools/publisher.js",
+        "versionUp": "node tools/versionUp.js",
+        "preRelease": "node tools/preRelease.js",
         "start": "npx webpack-dev-server -d --open",
         "devServer": "npx webpack-dev-server -d",
         "whatsNew": "node tools/checkWhatsNew.js",

@@ -1,0 +1,20 @@
+trigger:
+- deploy
+
+jobs:
+- job: Deploy
+  displayName: '2. Tsc Build'
+  pool:
+    vmImage: 'Ubuntu-16.04'
+    demands: npm
+  steps:
+  - task: Npm@1
+    displayName: 'npm install'
+    inputs:
+      verbose: false
+  - script: 'npm run build'
+    displayName: 'Tsc Build'
+  - script: 'npm run versionUp'
+    displayName: 'Tsc Build'
+  - script: 'npm run preRelease'
+    displayName: 'Tsc Build'
