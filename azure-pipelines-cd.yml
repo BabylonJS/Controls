@@ -15,6 +15,10 @@ jobs:
   - script: 'npm run build'
     displayName: 'Tsc Build'
   - script: 'npm run versionUp'
-    displayName: 'Tsc Build'
-  - script: 'npm run preRelease'
-    displayName: 'Tsc Build'
+    displayName: 'Npm version up'
+  - task: Npm@1
+    displayName: 'Npm publish'
+    inputs:
+      command: 'custom'
+      customCommand: 'publish --tag preview --access public'
+      customEndpoint: 'BabylonNpm'
