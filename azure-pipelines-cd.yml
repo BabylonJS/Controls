@@ -3,18 +3,20 @@ trigger:
 
 jobs:
 - job: Deploy
-  displayName: '2. Tsc Build'
+  displayName: 'Build and Publish'
   pool:
     vmImage: 'Ubuntu-16.04'
     demands: npm
   steps:
-  - task: Npm@1
-    displayName: 'npm install'
-    inputs:
-      verbose: false
+  - script: 'npm install'
+    displayName: 'Npm install'
   - script: 'npm run build'
     displayName: 'Tsc Build'
   - script: 'npm run versionUp'
-    displayName: 'Tsc Build'
-  - script: 'npm run preRelease'
-    displayName: 'Tsc Build'
+    displayName: 'Npm version up'
+  - task: Npm@1
+    displayName: 'Npm publish'
+    inputs:
+      command: 'custom'
+      customCommand: 'publish --tag preview --access public'
+      customEndpoint: 'BabylonNpm'

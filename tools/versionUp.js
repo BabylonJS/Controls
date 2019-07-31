@@ -4,7 +4,7 @@ const { exec } = require('child_process');
 exec("npm view @babylonjs/controls dist-tags.preview", (err, stdout, stderr) => {
     if (err) {
         console.error(err);
-        return;
+        throw err;
     }
 
     console.log("Current NPM Registry Version:", stdout);
