@@ -26,7 +26,10 @@ var DEV_DIR = path.resolve(__dirname, "./.temp");
         module: {
             rules: [{
                 test: /\.tsx?$/,
-                loader: "ts-loader"
+                loader: "ts-loader",
+                options: {
+                    configFile: 'dev.tsconfig.json'
+                }
             },
             {
                 test: /\.css$/,
