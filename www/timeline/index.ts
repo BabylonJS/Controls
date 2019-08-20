@@ -43,15 +43,14 @@ function main() {
         loadingTextureURI: "./assets/loading.png",
         getThumbnailCallback: (time: number) => {
             const hiddenVideo = document.createElement("video");
-            hiddenVideo.src = "./assets/test.mp4";
-
-            hiddenVideo.setAttribute("muted", "true");
-            hiddenVideo.setAttribute("autoplay", "true");
             hiddenVideo.setAttribute("playsinline", "");
             hiddenVideo.muted = true;
-            hiddenVideo.autoplay = true;
-
+            hiddenVideo.autoplay = navigator.userAgent.indexOf("Edge") > 0 ? false : true;
+            hiddenVideo.loop = false;
+            hiddenVideo.src = "./assets/test.mp4";
             hiddenVideo.currentTime = time;
+
+            hiddenVideo.load();
 
             return resizer.getResizedTexture(hiddenVideo, { width: 128, height: 100 });
 

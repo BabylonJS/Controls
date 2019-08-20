@@ -16,6 +16,8 @@ import { elementToTexture } from "../coreControls/elementToTexture";
  * they do not need any extra copies a canvas2D would have.
  */
 export class Resizer extends BaseControl {
+    private readonly _generateMipMaps: boolean;
+    private readonly _textureFiltering: number;
     private _effectRenderer: EffectRenderer;
     private _effectWrapper: EffectWrapper;
 
@@ -28,6 +30,9 @@ export class Resizer extends BaseControl {
      */
     constructor(parent: BaseControl | Engine | HTMLCanvasElement) {
         super(parent);
+
+        this._generateMipMaps = this.engine.webGLVersion > 1;
+        this._textureFiltering = this._generateMipMaps ? Constants.TEXTURE_TRILINEAR_SAMPLINGMODE : Constants.TEXTURE_BILINEAR_SAMPLINGMODE;
 
         // Initializes the resizer control.
         this._initializeRenderer();
@@ -51,12 +56,15 @@ export class Resizer extends BaseControl {
      */
     public resize(textureData: BaseTexture | HTMLCanvasElement | HTMLVideoElement | string): Promise<null> {
         // Converts the texture data to an actual babylon.js texture.
-        const inputTexture = elementToTexture(this.engine, textureData, "input", true, Constants.TEXTURE_TRILINEAR_SAMPLINGMODE);
+        const inputTexture = elementToTexture(this.engine, textureData, "input", this._generateMipMaps, this._textureFiltering);
 
         // Wraps the result in a promise to simplify usage.
         return new Promise((success, _) => {
-            const checkIsReady = () => {
+            const checkIsReady = (() => {
                 if (inputTexture.isReady()) {
+                    // Stops the check
+                    this.engine.stopRenderLoop(checkIsReady);
+
                     // Once the input is ready, Render the texture as a full target quad.
                     this._render(inputTexture);
 
@@ -66,15 +74,9 @@ export class Resizer extends BaseControl {
                     // Notify the promise of the overall completion.
                     success();
                 }
-                else {
-                    // Regularly check the texture status to notify the promise success.
-                    setTimeout(() => {
-                        checkIsReady();
-                    }, 100);
-                }
-            }
-
-            checkIsReady();
+            }).bind(this);
+    
+            this.engine.runRenderLoop(checkIsReady);
         });
     }
 
@@ -87,7 +89,7 @@ export class Resizer extends BaseControl {
      */
     public getResizedTexture(textureData: BaseTexture | HTMLCanvasElement | HTMLVideoElement | string, size: { width: number, height: number }): BaseTexture {
         // Converts the texture data to an actual babylon.js texture.
-        const inputTexture = elementToTexture(this.engine, textureData, "input", true, Constants.TEXTURE_TRILINEAR_SAMPLINGMODE);
+        const inputTexture = elementToTexture(this.engine, textureData, "input", this._generateMipMaps, this._textureFiltering);
 
         // Creates an offscreen texture to render to.
         const outputTexture = this.engine.createRenderTargetTexture(size, { 
@@ -128,17 +130,14 @@ export class Resizer extends BaseControl {
             inputTexture.dispose();
         }
 
-        const checkIsReady = () => {
+        const checkIsReady = (() => {
             if (inputTexture.isReady()) {
+                this.engine.stopRenderLoop(checkIsReady);
                 render();
             }
-            else {
-                setTimeout(() => {
-                    checkIsReady();
-                }, 100);
-            }
-        }
-        checkIsReady();
+        }).bind(this);
+
+        this.engine.runRenderLoop(checkIsReady);
 
         // Wraps the lower level texture in a more friendly one.
         const texture = new BaseTexture(null);
