@@ -60,8 +60,11 @@ export class Resizer extends BaseControl {
 
         // Wraps the result in a promise to simplify usage.
         return new Promise((success, _) => {
-            const checkIsReady = () => {
+            const checkIsReady = (() => {
                 if (inputTexture.isReady()) {
+                    // Stops the check
+                    this.engine.stopRenderLoop(checkIsReady);
+
                     // Once the input is ready, Render the texture as a full target quad.
                     this._render(inputTexture);
 
@@ -71,15 +74,9 @@ export class Resizer extends BaseControl {
                     // Notify the promise of the overall completion.
                     success();
                 }
-                else {
-                    // Regularly check the texture status to notify the promise success.
-                    setTimeout(() => {
-                        checkIsReady();
-                    }, 100);
-                }
-            }
-
-            checkIsReady();
+            }).bind(this);
+    
+            this.engine.runRenderLoop(checkIsReady);
         });
     }
 
@@ -133,17 +130,14 @@ export class Resizer extends BaseControl {
             inputTexture.dispose();
         }
 
-        const checkIsReady = () => {
+        const checkIsReady = (() => {
             if (inputTexture.isReady()) {
+                this.engine.stopRenderLoop(checkIsReady);
                 render();
             }
-            else {
-                setTimeout(() => {
-                    checkIsReady();
-                }, 100);
-            }
-        }
-        checkIsReady();
+        }).bind(this);
+
+        this.engine.runRenderLoop(checkIsReady);
 
         // Wraps the lower level texture in a more friendly one.
         const texture = new BaseTexture(null);

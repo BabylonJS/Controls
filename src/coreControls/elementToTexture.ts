@@ -40,12 +40,25 @@ export function elementToTexture(engine: Engine,
         texture = htmlElementTexture;
 
         const onload = () => {
-            htmlElementTexture.update(false);
-            htmlElementTexture.element = null;
+            const checkIsReady = (() => {
+                if ((<any>textureData).readyState < (<any>textureData).HAVE_ENOUGH_DATA) {
+                    return;
+                }
+
+                engine.stopRenderLoop(checkIsReady);
+                htmlElementTexture.update(false);
+                // Try to not release too soon, it looks like
+                // it might cause glitches in older browsers.
+                setTimeout(() => {
+                    htmlElementTexture.element = null;
+                }, 500);
+            }).bind(this);
+
+            engine.runRenderLoop(checkIsReady);
         };
 
         if (textureData instanceof HTMLVideoElement) {
-            if (textureData.readyState < textureData.HAVE_CURRENT_DATA) {
+            if (textureData.readyState < textureData.HAVE_ENOUGH_DATA) {
                 // Seek to 0 does not raise by default.
                 // Use loadedData instead
                 const eventName = textureData.currentTime == 0 ? "loadeddata" : "seeked";
