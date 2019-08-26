@@ -10,3 +10,6 @@
 
 ### Resizer
 - Resizer control for images (Can be use to manage inputs of the timeline) [Doc](https://doc.babylonjs.com/features/resizer) / [Sebavan](https://github.com/sebavan/))
+
+### ImageFilter
+- Image filter control for images [Doc](https://doc.babylonjs.com/features/imageFilter) / [Sebavan](https://github.com/sebavan/))
