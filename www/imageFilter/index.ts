@@ -22,20 +22,20 @@ function main() {
     beforePicture2.src = imageToProcess;
     beforePicture3.src = imageToProcess;
 
-    const processorBlackAndWhite = new ImageFilter(afterPicture1);
-    const processorImageProcessing = new ImageFilter(afterPicture2);
-    const customProcessing = new ImageFilter(afterPicture3);
+    const backAndWhiteFilter = new ImageFilter(afterPicture1);
+    const imageProcessingFilter = new ImageFilter(afterPicture2);
+    const customFilter = new ImageFilter(afterPicture3);
 
-    const blackAndWhite = new BlackAndWhitePostProcess("bw", 1, null, undefined, processorBlackAndWhite.engine);
+    const blackAndWhitePostProcess = new BlackAndWhitePostProcess("bw", 1, null, undefined, backAndWhiteFilter.engine);
 
     const imageProcessingConfiguration = new ImageProcessingConfiguration();
-    const imageProcessing = new ImageProcessingPostProcess("ip", 1, null, undefined, processorImageProcessing.engine, undefined, undefined, imageProcessingConfiguration);
-    imageProcessing.imageProcessingConfiguration.colorCurvesEnabled = true;
-    imageProcessing.imageProcessingConfiguration.colorCurves.globalSaturation = 80;
+    imageProcessingConfiguration.colorCurvesEnabled = true;
+    imageProcessingConfiguration.colorCurves.globalSaturation = 80;
+    const imageProcessingPostProcess = new ImageProcessingPostProcess("ip", 1, null, undefined, imageProcessingFilter.engine, undefined, undefined, imageProcessingConfiguration);
 
-    const custom = new EffectWrapper({
+    const customEffectWrapper = new EffectWrapper({
         name: "Custom",
-        engine: customProcessing.engine,
+        engine: customFilter.engine,
         fragmentShader: `
             // Samplers
             varying vec2 vUV;
@@ -55,9 +55,9 @@ function main() {
     });
 
     startProcessingButton.addEventListener("click", function(e) {
-        processorBlackAndWhite.filter(imageToProcess, blackAndWhite);
-        processorImageProcessing.filter(imageToProcess, imageProcessing);
-        customProcessing.filter(imageToProcess, custom);
+        backAndWhiteFilter.filter(imageToProcess, blackAndWhitePostProcess);
+        imageProcessingFilter.filter(imageToProcess, imageProcessingPostProcess);
+        customFilter.filter(imageToProcess, customEffectWrapper);
 
         e.preventDefault();
         e.stopPropagation();

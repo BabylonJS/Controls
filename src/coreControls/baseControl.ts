@@ -43,6 +43,8 @@ export abstract class BaseControl {
             this._canvas = parent.canvas;
             this._engine = parent.engine;
         }
+        // Parallel Shader Compile turned off at the moment.
+        this._engine.getCaps().parallelShaderCompile = null;
     }
 
     /**
