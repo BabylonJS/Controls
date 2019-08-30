@@ -21,8 +21,8 @@ const imageToProcess = "../assets/logo.png";
 // Filter the image based on a button click
 // This simply applies the filter once.
 function oneTimeFilterWithPostProcess() {
-    const backAndWhiteFilter = new ImageFilter(afterPicture1);
-    const imageProcessingFilter = new ImageFilter(afterPicture2);
+    const backAndWhiteFilter = new ImageFilter(afterPicture2);
+    const imageProcessingFilter = new ImageFilter(afterPicture3);
 
     const blackAndWhitePostProcess = new BlackAndWhitePostProcess("bw", 1, null, undefined, backAndWhiteFilter.engine);
 
@@ -45,7 +45,7 @@ function oneTimeFilterWithPostProcess() {
 // Filter one image in realtime by updating the effect variables.
 // It also demo the usage of a custom input texture.
 function realTimeRenderAndCustomShader() {
-    const customFilter = new ImageFilter(afterPicture3);
+    const customFilter = new ImageFilter(afterPicture1);
     const customEffectWrapper = new EffectWrapper({
         name: "Custom",
         engine: customFilter.engine,
