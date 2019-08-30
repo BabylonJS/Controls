@@ -18,14 +18,11 @@ const startProcessingButton = document.getElementById("startProcessingButton");
 
 const imageToProcess = "../assets/logo.png";
 
-function main() {
-    beforePicture1.src = imageToProcess;
-    beforePicture2.src = imageToProcess;
-    beforePicture3.src = imageToProcess;
-
+// Filter the image based on a button click
+// This simply applies the filter once.
+function oneTimeFilterWithPostProcess() {
     const backAndWhiteFilter = new ImageFilter(afterPicture1);
     const imageProcessingFilter = new ImageFilter(afterPicture2);
-    const customFilter = new ImageFilter(afterPicture3);
 
     const blackAndWhitePostProcess = new BlackAndWhitePostProcess("bw", 1, null, undefined, backAndWhiteFilter.engine);
 
@@ -34,14 +31,31 @@ function main() {
     imageProcessingConfiguration.colorCurves.globalSaturation = 80;
     const imageProcessingPostProcess = new ImageProcessingPostProcess("ip", 1, null, undefined, imageProcessingFilter.engine, undefined, undefined, imageProcessingConfiguration);
 
+    // One time filter apply.
+    startProcessingButton.addEventListener("click", function(e) {
+        backAndWhiteFilter.filter(imageToProcess, blackAndWhitePostProcess);
+        imageProcessingFilter.filter(imageToProcess, imageProcessingPostProcess);
+
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+    });
+}
+
+// Filter one image in realtime by updating the effect variables.
+// It also demo the usage of a custom input texture.
+function realTimeRenderAndCustomShader() {
+    const customFilter = new ImageFilter(afterPicture3);
     const customEffectWrapper = new EffectWrapper({
         name: "Custom",
         engine: customFilter.engine,
         fragmentShader: `
-            // Samplers
             varying vec2 vUV;
+            
+            // Default Sampler
             uniform sampler2D textureSampler;
 
+            // Custom uniforms
             uniform sampler2D otherTexture;
             uniform vec3 colorOffset;
 
@@ -60,39 +74,45 @@ function main() {
                 gl_FragColor.rgb *= texture2D(otherTexture, vUV * scale).rgb;
             }
         `,
-        // Defines the list of existing samplers.
+        // Defines the list of existing samplers (default + customs).
         samplerNames: ["textureSampler", "otherTexture"],
         // Defines the list of existing uniform to be bound.
         uniformNames: ["colorOffset"],
     });
 
-    var time = 0;
-    var otherTexture = new Texture("../assets/timeline.png", customFilter.engine);
+    // Creates the required input for the effect.
+    const mainTexture = new Texture("../assets/logo.png", customFilter.engine);
+    const otherTexture = new Texture("../assets/timeline.png", customFilter.engine);
+    let time = 0;
 
-    // Demos a dynamic way of using the effect over time.
+    // Rely on the underlying engine render loop to update the filter result every frame.
     customFilter.engine.runRenderLoop(() => {
-        // Only render if the texture is ready
+        // Only render if the custom texture is ready (the default one is 
+        // checked for you by the render function)
         if (!otherTexture.isReady()) {
             return;
         }
 
-        // Sets custom values.
+        // Sets the custom values.
         time += customFilter.engine.getDeltaTime() / 1000;
         customEffectWrapper.effect.setTexture("otherTexture", otherTexture);
         customEffectWrapper.effect.setFloat3("colorOffset", Math.cos(time) * 0.5 + 0.5, 0, Math.sin(time) * 0.5 + 0.5);
 
-        // Render.
-        customFilter.filter(imageToProcess, customEffectWrapper);
+        // Render. Please note we are using render instead of filter to improve 
+        // performances of real time filter. filter is creating a promise and will therefore
+        // generate some lags and garbage.
+        customFilter.render(mainTexture, customEffectWrapper);
     });
 
-    startProcessingButton.addEventListener("click", function(e) {
-        backAndWhiteFilter.filter(imageToProcess, blackAndWhitePostProcess);
-        imageProcessingFilter.filter(imageToProcess, imageProcessingPostProcess);
+}
 
-        e.preventDefault();
-        e.stopPropagation();
-        return false;
-    });
+function main() {
+    beforePicture1.src = imageToProcess;
+    beforePicture2.src = imageToProcess;
+    beforePicture3.src = imageToProcess;
+
+    oneTimeFilterWithPostProcess();
+    realTimeRenderAndCustomShader();
 }
 
 main();

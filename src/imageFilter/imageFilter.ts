@@ -71,8 +71,8 @@ export class ImageFilter extends BaseControl {
     }
 
     /**
-     * This will resize the texture to fit in the canvas size.
-     * @param input defines the picture input we want to resize. It can be the url of a texture, another canvas or a video element.
+     * This will filter the input and directly displays the result in the output.
+     * @param input defines the picture input we want to filter. It can be the url of a texture, another canvas or a video element.
      * @param filter defines the effect to use to filter the image.
      * @returns a promise to know when the rendering is done.
      */
@@ -88,7 +88,7 @@ export class ImageFilter extends BaseControl {
                     this.engine.stopRenderLoop(checkIsReady);
 
                     // Once the input is ready, Render the texture as a full target quad.
-                    this._render(inputTexture, filter);
+                    this.render(inputTexture, filter);
 
                     // Free up memory resources from the input.
                     inputTexture.dispose();
@@ -103,8 +103,8 @@ export class ImageFilter extends BaseControl {
     }
 
     /**
-     * This will return a Babylon texture resized to a chosen size.
-     * @param textureData defines the picture input we want to resize. It can be the url of a texture, another canvas or a video element.
+     * This will return a filtered Babylon texture.
+     * @param textureData defines the picture input we want to filter. It can be the url of a texture, another canvas or a video element.
      * @param size defines the The chosen size of the texture on GPU.
      * @param filter defines the effect to use to filter the image.
      * @returns The Babylon texture to be used in other controls for instance. Be carefull, the texture might not be ready
@@ -137,7 +137,7 @@ export class ImageFilter extends BaseControl {
             this._effectRenderer.setViewport();
 
             // Render the texture as a full target quad.
-            this._render(inputTexture, filter);
+            this.render(inputTexture, filter);
 
             // Unsets the output texture.
             this.engine.unBindFramebuffer(outputTexture);
@@ -153,6 +153,7 @@ export class ImageFilter extends BaseControl {
             inputTexture.dispose();
         }
 
+        // Defers until the input texture is ready.
         const checkIsReady = (() => {
             if (inputTexture.isReady()) {
                 this.engine.stopRenderLoop(checkIsReady);
@@ -167,6 +168,40 @@ export class ImageFilter extends BaseControl {
         texture._texture = outputTexture;
 
         return texture;
+    }
+
+    /**
+     * This renders the effects using the current input babylon texture. This method
+     * is better to use in realtime rendering of an effect as it does not generate any 
+     * promise or extra lamdas.
+     * @param inputTexture defines the babylon texture to use as an input.
+     * @param filter defines the effect to use to filter the image.
+     */
+    public render(inputTexture: BaseTexture, filter: PostProcess | EffectWrapper): void {
+        if (!filter) {
+            Logger.Error("Please, specify at least a post process or an effectWrapper in the options.");
+            return;
+        }
+
+        if (!inputTexture.isReady()) {
+            return;
+        }
+
+        let effect: Effect;
+        if (filter instanceof PostProcess) {
+            effect = filter.getEffect();
+            this._effectRenderer.bindBuffers(effect)
+            filter.apply();
+
+        }
+        else if (filter instanceof EffectWrapper) {
+            effect = filter.effect;
+            this._effectRenderer.applyEffectWrapper(filter);
+        }
+
+        effect.setTexture("textureSampler", inputTexture);
+
+        this._effectRenderer.draw();
     }
 
     /**
@@ -198,28 +233,5 @@ export class ImageFilter extends BaseControl {
 
         // Initializes the viewport to the full canvas size.
         this._effectRenderer.setViewport();
-    }
-
-    private _render(inputTexture: BaseTexture, filter: PostProcess | EffectWrapper): void {
-        if (!filter) {
-            Logger.Error("Please, specify at least a post process or an effectWrapper in the options.");
-            return;
-        }
-
-        let effect: Effect;
-        if (filter instanceof PostProcess) {
-            effect = filter.getEffect();
-            this._effectRenderer.bindBuffers(effect)
-            filter.apply();
-
-        }
-        else if (filter instanceof EffectWrapper) {
-            effect = filter.effect;
-            this._effectRenderer.applyEffectWrapper(filter);
-        }
-
-        effect.setTexture("textureSampler", inputTexture);
-
-        this._effectRenderer.draw();
     }
 }
