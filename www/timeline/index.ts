@@ -41,22 +41,36 @@ function main() {
         thumbnailWidth: 128,
         thumbnailHeight: 120,
         loadingTextureURI: "./assets/loading.png",
-        getThumbnailCallback: (time: number) => {
+        getThumbnailCallback: (time: number, done: (element: any) => void) => {
+            // This is strictly for demo purpose and should not be used in prod as it creates as many videos
+            // as there are thumbnails all over the timeline.
             const hiddenVideo = document.createElement("video");
+            document.body.append(hiddenVideo);
+            hiddenVideo.style.display = "none";
+
             hiddenVideo.setAttribute("playsinline", "");
             hiddenVideo.muted = true;
             hiddenVideo.autoplay = navigator.userAgent.indexOf("Edge") > 0 ? false : true;
             hiddenVideo.loop = false;
-            hiddenVideo.src = "./assets/test.mp4";
-            hiddenVideo.currentTime = time;
 
+            hiddenVideo.onloadeddata = () => {
+                if (time === 0) {
+                    done(resizer.getResizedTexture(hiddenVideo, { width: 128, height: 100 }));
+                }
+                else {
+                    hiddenVideo.onseeked = () => {
+                        done(resizer.getResizedTexture(hiddenVideo, { width: 128, height: 100 }));
+                    }
+                    hiddenVideo.currentTime = time;
+                }
+            }
+
+            hiddenVideo.src = "./assets/test.mp4?" + time;
             hiddenVideo.load();
 
-            return resizer.getResizedTexture(hiddenVideo, { width: 128, height: 100 });
+            // done(hiddenVideo);
 
-            // return hiddenVideo;
-
-            //return "./assets/loading.png";
+            // done("./assets/loading.png");
         }
     });
 
