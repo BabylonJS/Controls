@@ -10,6 +10,7 @@ var DEV_DIR = path.resolve(__dirname, "./.temp");
         entry: {
             timeline: DIST_DIR + "/timeline/index.ts",
             resizer: DIST_DIR + "/resizer/index.ts",
+            amp: DIST_DIR + "/resizer/amp.ts",
             imageFilter: DIST_DIR + "/imageFilter/index.ts",
         },
         output: {

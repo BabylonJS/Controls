@@ -12,13 +12,15 @@ import { Engine } from "@babylonjs/core/Engines/engine";
  * @param name defines the name of the texture.
  * @param generateMipMaps defines if mipmaps needs to be generated for the texture.
  * @param textureData defines the type of filtering used for the texture (Constants.TEXTURE_NEAREST_NEAREST...).
+ * @param invertY defines whether the default vertical orientation shoudl be reversed.
  * @returns the Babylon.js texture.
  */
 export function elementToTexture(engine: Engine,
     textureData: BaseTexture | HTMLCanvasElement | HTMLVideoElement | string, 
     name: string,
     generateMipMaps: boolean = false,
-    filteringType: number = Constants.TEXTURE_BILINEAR_SAMPLINGMODE): BaseTexture {
+    filteringType: number = Constants.TEXTURE_BILINEAR_SAMPLINGMODE,
+    invertY = true): BaseTexture {
 
     let texture: BaseTexture;
     // In case of a texture do nothing.
@@ -27,7 +29,7 @@ export function elementToTexture(engine: Engine,
     }
     // In case of string, load the texture from a URI.
     else if (typeof(textureData) === "string") {
-        texture = new Texture(textureData, engine, !generateMipMaps, true, filteringType);
+        texture = new Texture(textureData, engine, !generateMipMaps, invertY, filteringType);
     }
     else {
         // Else loads the provided video or canvas element.
@@ -39,39 +41,34 @@ export function elementToTexture(engine: Engine,
         });
         texture = htmlElementTexture;
 
-        const onload = () => {
+        const onTextureUpdated = () => {
+            // Try to not release too soon, it looks like
+            // it might cause glitches in older browsers.
+            setTimeout(() => {
+                htmlElementTexture.element = null;
+            }, 500);
+        }
+
+        if (textureData instanceof HTMLVideoElement && textureData.readyState < textureData.HAVE_ENOUGH_DATA) {
             const checkIsReady = (() => {
-                if ((<any>textureData).readyState < (<any>textureData).HAVE_ENOUGH_DATA) {
+                if ((<any>textureData).readyState < textureData.HAVE_ENOUGH_DATA) {
                     return;
                 }
-
                 engine.stopRenderLoop(checkIsReady);
-                htmlElementTexture.update(false);
-                // Try to not release too soon, it looks like
-                // it might cause glitches in older browsers.
-                setTimeout(() => {
-                    htmlElementTexture.element = null;
-                }, 500);
+                htmlElementTexture.update(!invertY);
+                onTextureUpdated();
             }).bind(this);
 
             engine.runRenderLoop(checkIsReady);
-        };
-
-        if (textureData instanceof HTMLVideoElement) {
-            if (textureData.readyState < textureData.HAVE_ENOUGH_DATA) {
-                // Seek to 0 does not raise by default.
-                // Use loadedData instead
-                const eventName = textureData.currentTime == 0 ? "loadeddata" : "seeked";
-                textureData.addEventListener(eventName, () => { onload(); });
-            }
-            else {
-                // Video Element is ready to be uploaded to GPU.
-                onload();
-            }
+        }
+        else if (textureData instanceof HTMLVideoElement) {
+            htmlElementTexture.update(!invertY);
+            onTextureUpdated();
         }
         else {
             // Canvas element are considered already ready to be uploaded to GPU.
-            onload();
+            htmlElementTexture.update(invertY);
+            onTextureUpdated();
         }
     }
 
