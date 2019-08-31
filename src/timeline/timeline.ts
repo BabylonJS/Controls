@@ -36,8 +36,10 @@ export interface ITimelineOptions {
      * 
      * This will be regularly called for each needed thumbnail by specifying the time
      * of the required picture. It can return either a texture, a video, a canvas or a url.
+     * 
+     * The return value is passed through the done function to allow async operations.
      */
-    getThumbnailCallback: (time: number) => BaseTexture | HTMLCanvasElement | HTMLVideoElement | string;
+    getThumbnailCallback: (time: number, done: (input: BaseTexture | HTMLCanvasElement | HTMLVideoElement | string) => void) => void;
     /**
      * Defines whether the closest existing/loaded thumbnail should be use in place of the loading texture.
      * True by default.
@@ -61,6 +63,7 @@ export class Timeline extends BaseControl {
     private _effectWrapper: EffectWrapper;
     private _loadingThumbnail: Texture;
     private _thumbnails: { [timespan: number]: BaseTexture };
+    private _thumbnailsLoading: { [timespan: number]: boolean };
 
     private _totalThumbnails: number;
     private _visibleThumbnails: number;
@@ -390,6 +393,7 @@ export class Timeline extends BaseControl {
         this._loadingThumbnail = new Texture(this._options.loadingTextureURI, this.engine, true, true, Constants.TEXTURE_BILINEAR_SAMPLINGMODE);
         // And the thumbnails cache.
         this._thumbnails = { };
+        this._thumbnailsLoading = { };
     }
 
     private _initializeRenderer(): void {
@@ -415,14 +419,18 @@ export class Timeline extends BaseControl {
 
         // Try grabbing the thumbnail from the cache.
         let thumbnail = this._thumbnails[time];
-        if (!thumbnail) {
-            // If not creates it from the given callback.
-            const textureData = this._options.getThumbnailCallback(time);
-            thumbnail = this.addThumbnail(textureData, time);
+        // If not creates it from the given callback.
+        if (!thumbnail && !this._thumbnailsLoading[time]) {
+            // Flag the thubmnail as currently loading.
+            this._thumbnailsLoading[time] = true;
+
+            this._options.getThumbnailCallback(time, (textureData) => {
+                this.addThumbnail(textureData, time);
+            });
         }
 
         // Returns the thumbnail texture only if ready.
-        if (thumbnail.isReady()) {
+        if (thumbnail && thumbnail.isReady()) {
             return thumbnail;
         }
 

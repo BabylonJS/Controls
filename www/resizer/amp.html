@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="description" content="Resizer Control">
+    
+    <title>Resizer</title>
+
+    <!-- Link to the AMP resources -->
+    <link href="//amp.azure.net/libs/amp/2.2.3/skins/amp-default/azuremediaplayer.min.css" rel="stylesheet">
+    <script src="//amp.azure.net/libs/amp/2.2.3/azuremediaplayer.min.js"></script>
+
+    <link rel="shortcut icon" href="../assets/favicon.ico">
+    <link rel="icon" type="image/png" href="../assets/favicon.ico">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.typekit.net/cta4xsb.css">
+    <link rel="stylesheet" href="../assets/common.css">
+
+    <style>
+        .wrapper {
+            display: grid;
+            grid-template-columns: auto 512px 512px auto;
+            grid-template-rows: auto 40px 80px 512px 40px auto;
+        }
+
+        .headerLogo {
+            grid-column-start: 2;
+            grid-column-end: 4;
+            grid-row: 1;
+            background-color: var(--main-bg-color-dark);
+        }
+        .headerLogo > a > img {
+            width: auto;
+            height: 80px;
+            margin-left: 10px;
+        }
+        .title {
+            grid-column-start: 2;
+            grid-column-end: 4;
+            grid-row: 2;
+            background-color: var(--main-bg-color-dark);
+            font-size: 20px;
+            line-height: 40px;
+            padding-left: 5px;
+        }
+        .subTitle {
+            grid-column-start: 2;
+            grid-column-end: 4;
+            grid-row: 3;
+            background-color: var(--main-bg-color-dark);
+            line-height: 40px;
+            padding-left: 5px;
+        }
+        .before {
+            grid-column: 2;
+            grid-row: 4;
+            background-color: white;
+        }
+        .after {
+            grid-column: 3;
+            grid-row: 4;
+            background-color: white;
+        }
+        .control {
+            grid-column-start: 2;
+            grid-column-end: 4;
+            grid-row: 5;
+            background-color: var(--main-bg-color-dark);
+            line-height: 40px;
+            padding-left: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrapper">
+        <div class="headerLogo">
+            <a href="../">
+                <img src="../assets/logo.svg"/>
+            </a>
+        </div>
+        <div class="title">
+            This demo use the resizer control to extract frames of a video played in AMP.
+        </div>
+        <div class="subTitle">
+            One of the biggest advantage is that compared to drawImage, it might/should work on Safari.
+        </div>
+        <div class="before">
+            <video id="beforePicture" playsinline crossorigin="anonymous" class="azuremediaplayer amp-default-skin">
+                <p class="amp-no-js">
+                    To view this video please enable JavaScript, and consider upgrading to a web browser that supports HTML5 video
+                </p>
+            </video>
+        </div>
+        <div class="after">
+            <canvas id="thumbnailsCanvas" width="512" height="512"></canvas>
+        </div>
+        <div class="control">
+            <a href="#" id="startButton">Start Generating</a>
+        </div>
+    </div>
+
+    <script src="../scripts/amp.js"></script>
+</body>
+
+</html>
