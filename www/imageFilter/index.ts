@@ -9,7 +9,7 @@ import { EffectWrapper } from "@babylonjs/core/Materials/effectRenderer";
 import { Texture } from "@babylonjs/core/Materials/Textures/texture";
 
 const beforePicture1 = document.getElementById("beforePicture1") as HTMLImageElement;
-const beforePicture2 = document.getElementById("beforePicture2") as HTMLImageElement;
+const beforePicture2 = document.getElementById("beforePicture2") as HTMLCanvasElement;
 const beforePicture3 = document.getElementById("beforePicture3") as HTMLImageElement;
 const afterPicture1 = document.getElementById("afterPicture1") as HTMLCanvasElement;
 const afterPicture2 = document.getElementById("afterPicture2") as HTMLCanvasElement;
@@ -21,10 +21,7 @@ const imageToProcess = "../assets/logo.png";
 // Filter the image based on a button click
 // This simply applies the filter once.
 function oneTimeFilterWithPostProcess() {
-    const backAndWhiteFilter = new ImageFilter(afterPicture2);
     const imageProcessingFilter = new ImageFilter(afterPicture3);
-
-    const blackAndWhitePostProcess = new BlackAndWhitePostProcess("bw", 1, null, undefined, backAndWhiteFilter.engine);
 
     const imageProcessingConfiguration = new ImageProcessingConfiguration();
     imageProcessingConfiguration.colorCurvesEnabled = true;
@@ -33,12 +30,26 @@ function oneTimeFilterWithPostProcess() {
 
     // One time filter apply.
     startProcessingButton.addEventListener("click", function(e) {
-        backAndWhiteFilter.filter(imageToProcess, blackAndWhitePostProcess);
         imageProcessingFilter.filter(imageToProcess, imageProcessingPostProcess);
 
         e.preventDefault();
         e.stopPropagation();
         return false;
+    });
+}
+
+// Filter a 2d canvas this can be handfull, if you want to filter some drawings for instance.
+// This simply applies the filter once.
+function oneTimeFilterFromCanvas() {
+    const backAndWhiteFilter = new ImageFilter(afterPicture2);
+    const blackAndWhitePostProcess = new BlackAndWhitePostProcess("bw", 1, null, undefined, backAndWhiteFilter.engine);
+
+    const image = document.createElement('img');
+    image.src = imageToProcess;
+    image.addEventListener('load', e => {
+        const ctx = beforePicture2.getContext("2d");
+        ctx.drawImage(image, 128, 128, 256, 256);
+        backAndWhiteFilter.filter(beforePicture2, blackAndWhitePostProcess);
     });
 }
 
@@ -108,10 +119,10 @@ function realTimeRenderAndCustomShader() {
 
 function main() {
     beforePicture1.src = imageToProcess;
-    beforePicture2.src = imageToProcess;
     beforePicture3.src = imageToProcess;
 
     oneTimeFilterWithPostProcess();
+    oneTimeFilterFromCanvas();
     realTimeRenderAndCustomShader();
 }
 
