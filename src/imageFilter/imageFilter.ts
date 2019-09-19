@@ -48,7 +48,7 @@ export class ImageFilter extends BaseControl {
     constructor(parent: BaseControl | Engine | HTMLCanvasElement, options?: IImageFilterOptions) {
         super(parent);
 
-        // Default options for the timeline.
+        // Default options for the filter.
         this._options = options || { };
         if (this._options.generateMipMaps === undefined) {
             this._options.generateMipMaps = true;
@@ -205,7 +205,7 @@ export class ImageFilter extends BaseControl {
     }
 
     /**
-     * Resizes the timeline to adapt to the new canvas size.
+     * Resizes the filter to adapt to the new canvas size.
      * The canvas has to be resized before hand.
      * Be carefull, the current time and visible duration might be impacted to ensure it always starts
      * at the beginning of the displayed thumbnails list.
