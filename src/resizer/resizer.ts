@@ -1,4 +1,4 @@
-import { Engine } from "@babylonjs/core/Engines/engine";
+import { ThinEngine } from "@babylonjs/core/Engines/thinEngine";
 import { EffectWrapper, EffectRenderer } from "@babylonjs/core/Materials/effectRenderer";
 import { BaseTexture } from "@babylonjs/core/Materials/Textures/baseTexture";
 import { Constants } from "@babylonjs/core/Engines/constants";
@@ -28,7 +28,7 @@ export class Resizer extends BaseControl {
      *   - An engine instance: the Babylon.js engine to use to render the control.
      *   - Another Babylon.js control: this allows sharing the engine cross controls to mix and match them for instance.
      */
-    constructor(parent: BaseControl | Engine | HTMLCanvasElement) {
+    constructor(parent: BaseControl | ThinEngine | HTMLCanvasElement) {
         super(parent);
 
         this._generateMipMaps = this.engine.webGLVersion > 1;
