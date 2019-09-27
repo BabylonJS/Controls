@@ -1,4 +1,4 @@
-import { Engine } from "@babylonjs/core/Engines/engine";
+import { ThinEngine } from "@babylonjs/core/Engines/thinEngine";
 import { EffectWrapper, EffectRenderer } from "@babylonjs/core/Materials/effectRenderer";
 import { BaseTexture } from "@babylonjs/core/Materials/Textures/baseTexture";
 import { Constants } from "@babylonjs/core/Engines/constants";
@@ -45,7 +45,7 @@ export class ImageFilter extends BaseControl {
      *   - Another Babylon.js control: this allows sharing the engine cross controls to mix and match them for instance.
      * @param options defines the set of options used by the control.
      */
-    constructor(parent: BaseControl | Engine | HTMLCanvasElement, options?: IImageFilterOptions) {
+    constructor(parent: BaseControl | ThinEngine | HTMLCanvasElement, options?: IImageFilterOptions) {
         super(parent);
 
         // Default options for the filter.

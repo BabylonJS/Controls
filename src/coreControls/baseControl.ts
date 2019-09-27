@@ -1,4 +1,4 @@
-import { Engine } from "@babylonjs/core/Engines/engine";
+import { ThinEngine } from "@babylonjs/core/Engines/thinEngine";
 
 /**
  * Represents a the base class of any Babylon.js controls.
@@ -7,12 +7,12 @@ import { Engine } from "@babylonjs/core/Engines/engine";
  */
 export abstract class BaseControl {
     private readonly _canvas: HTMLCanvasElement;
-    private readonly _engine: Engine;
+    private readonly _engine: ThinEngine;
 
     /**
      * Gets the current Babylon.js engine used by the control.
      */
-    public get engine(): Engine {
+    public get engine(): ThinEngine {
         return this._engine;
     }
 
@@ -30,12 +30,12 @@ export abstract class BaseControl {
      *   - An engine instance: the Babylon.js engine to use to render the control.
      *   - Another Babylon.js control: this allows sharing the engine cross controls to mix and match them for instance.
      */
-    constructor(parent: BaseControl | Engine | HTMLCanvasElement) {
+    constructor(parent: BaseControl | ThinEngine | HTMLCanvasElement) {
         if (parent instanceof HTMLCanvasElement) {
             this._canvas = parent;
-            this._engine = new Engine(this._canvas, false);
+            this._engine = new ThinEngine(this._canvas, false);
         }
-        else if (parent instanceof Engine) {
+        else if (parent instanceof ThinEngine) {
             this._canvas = parent.getRenderingCanvas();
             this._engine = parent;
         }

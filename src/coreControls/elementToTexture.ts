@@ -3,7 +3,7 @@ import { Texture } from "@babylonjs/core/Materials/Textures/texture";
 import { HtmlElementTexture } from "@babylonjs/core/Materials/Textures/htmlElementTexture";
 
 import { Constants } from "@babylonjs/core/Engines/constants";
-import { Engine } from "@babylonjs/core/Engines/engine";
+import { ThinEngine } from "@babylonjs/core/Engines/thinEngine";
 
 /**
  * Converts heterogenous texture types to a Babylon.js usable texture.
@@ -15,7 +15,7 @@ import { Engine } from "@babylonjs/core/Engines/engine";
  * @param invertY defines whether the default vertical orientation shoudl be reversed.
  * @returns the Babylon.js texture.
  */
-export function elementToTexture(engine: Engine,
+export function elementToTexture(engine: ThinEngine,
     textureData: BaseTexture | HTMLCanvasElement | HTMLVideoElement | string, 
     name: string,
     generateMipMaps: boolean = false,

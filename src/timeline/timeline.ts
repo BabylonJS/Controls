@@ -1,4 +1,4 @@
-import { Engine } from "@babylonjs/core/Engines/engine";
+import { ThinEngine } from "@babylonjs/core/Engines/thinEngine";
 import { EffectWrapper, EffectRenderer } from "@babylonjs/core/Materials/effectRenderer";
 import { BaseTexture } from "@babylonjs/core/Materials/Textures/baseTexture";
 import { Texture } from "@babylonjs/core/Materials/Textures/texture";
@@ -149,7 +149,7 @@ export class Timeline extends BaseControl {
      *   - Another Babylon.js control: this allows sharing the engine cross controls to mix and match them for instance.
      * @param options defines the set of options used by the timeline control.
      */
-    constructor(parent: BaseControl | Engine | HTMLCanvasElement, options: ITimelineOptions) {
+    constructor(parent: BaseControl | ThinEngine | HTMLCanvasElement, options: ITimelineOptions) {
         super(parent);
 
         // Default options for the timeline.

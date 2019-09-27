@@ -7,6 +7,7 @@ import { ImageProcessingConfiguration } from "@babylonjs/core/Materials/imagePro
 
 import { EffectWrapper } from "@babylonjs/core/Materials/effectRenderer";
 import { Texture } from "@babylonjs/core/Materials/Textures/texture";
+import { Engine } from "@babylonjs/core/Engines/engine";
 
 const beforePicture1 = document.getElementById("beforePicture1") as HTMLImageElement;
 const beforePicture2 = document.getElementById("beforePicture2") as HTMLCanvasElement;
@@ -21,12 +22,13 @@ const imageToProcess = "../assets/logo.png";
 // Filter the image based on a button click
 // This simply applies the filter once.
 function oneTimeFilterWithPostProcess() {
-    const imageProcessingFilter = new ImageFilter(afterPicture3);
+    const engine = new Engine(afterPicture3, false);
+    const imageProcessingFilter = new ImageFilter(engine);
 
     const imageProcessingConfiguration = new ImageProcessingConfiguration();
     imageProcessingConfiguration.colorCurvesEnabled = true;
     imageProcessingConfiguration.colorCurves.globalSaturation = 80;
-    const imageProcessingPostProcess = new ImageProcessingPostProcess("ip", 1, null, undefined, imageProcessingFilter.engine, undefined, undefined, imageProcessingConfiguration);
+    const imageProcessingPostProcess = new ImageProcessingPostProcess("ip", 1, null, undefined, engine, undefined, undefined, imageProcessingConfiguration);
 
     // One time filter apply.
     startProcessingButton.addEventListener("click", function(e) {
@@ -41,8 +43,9 @@ function oneTimeFilterWithPostProcess() {
 // Filter a 2d canvas this can be handfull, if you want to filter some drawings for instance.
 // This simply applies the filter once.
 function oneTimeFilterFromCanvas() {
-    const backAndWhiteFilter = new ImageFilter(afterPicture2);
-    const blackAndWhitePostProcess = new BlackAndWhitePostProcess("bw", 1, null, undefined, backAndWhiteFilter.engine);
+    const engine = new Engine(afterPicture2, false);
+    const backAndWhiteFilter = new ImageFilter(engine);
+    const blackAndWhitePostProcess = new BlackAndWhitePostProcess("bw", 1, null, undefined, engine);
 
     const image = document.createElement('img');
     image.src = imageToProcess;
@@ -56,7 +59,8 @@ function oneTimeFilterFromCanvas() {
 // Filter one image in realtime by updating the effect variables.
 // It also demo the usage of a custom input texture.
 function realTimeRenderAndCustomShader() {
-    const customFilter = new ImageFilter(afterPicture1);
+    const engine = new Engine(afterPicture1, false);
+    const customFilter = new ImageFilter(engine);
     const customEffectWrapper = new EffectWrapper({
         name: "Custom",
         engine: customFilter.engine,
@@ -92,12 +96,12 @@ function realTimeRenderAndCustomShader() {
     });
 
     // Creates the required input for the effect.
-    const mainTexture = new Texture("../assets/logo.png", customFilter.engine);
-    const otherTexture = new Texture("../assets/timeline.png", customFilter.engine);
+    const mainTexture = new Texture("../assets/logo.png", engine);
+    const otherTexture = new Texture("../assets/timeline.png", engine);
     let time = 0;
 
     // Rely on the underlying engine render loop to update the filter result every frame.
-    customFilter.engine.runRenderLoop(() => {
+    engine.runRenderLoop(() => {
         // Only render if the custom texture is ready (the default one is 
         // checked for you by the render function)
         if (!otherTexture.isReady()) {
@@ -105,7 +109,7 @@ function realTimeRenderAndCustomShader() {
         }
 
         // Sets the custom values.
-        time += customFilter.engine.getDeltaTime() / 1000;
+        time += engine.getDeltaTime() / 1000;
         customEffectWrapper.effect.setTexture("otherTexture", otherTexture);
         customEffectWrapper.effect.setFloat3("colorOffset", Math.cos(time) * 0.5 + 0.5, 0, Math.sin(time) * 0.5 + 0.5);
 
