@@ -100,7 +100,7 @@ export class Timeline extends BaseControl {
      * Gets the max value that can be set as currentTime.
      */
     public get maxSettableTime(): number {
-        return this._totalDuration - this._visibleDuration;
+        return Math.max(this._totalDuration - this._visibleDuration, 0);
     }
 
     /**
@@ -234,18 +234,28 @@ export class Timeline extends BaseControl {
         const thumbnailIndex = this._currentTime / this._intervalDuration;
         const startTime = Math.floor(thumbnailIndex) * this._intervalDuration;
 
+        // Computes a filler offsets for the width to ensure the timeline is centered.
+        let filler = 0;
+        if (this._totalDuration < this._visibleThumbnails) {
+            const offset = this._visibleThumbnails - this._totalDuration;
+            filler = offset / 2;
+        }
+
         // Renders all the visible thumbnails in the timeline.
         for (let i = 0; i < this._visibleThumbnails + 1; i++) {
             const time = startTime + this._intervalDuration * i;
+            if (time >= this._totalDuration) {
+                break;
+            }
 
             // Set the texture corresponding to the current time.
-            const texture = this._getTexture(Math.floor(time));
+            const texture = this._getTexture(time);
             this._effectWrapper.effect.setTexture("thumbnail", texture);
 
             // Computes the horizontal offset of the thumbnail dynamically by respecting
             // The shader optim defined at the top of the file: 
             // shaderOffset = offset * 2. - 1.;
-            const widthOffset = (time - this._currentTime) / this._visibleDuration * 2 - 1;
+            const widthOffset = ((time - this._currentTime) + filler) / this._visibleDuration * 2 - 1;
             this._effectWrapper.effect.setFloat2("offset", widthOffset, this._heightOffset);
             this._effectWrapper.effect.setFloat2("scale", this._widthScale, this._heightScale);
 
@@ -345,7 +355,7 @@ export class Timeline extends BaseControl {
         this._currentTime = 0;
 
         // Ensures the provided total duration is meaningful.
-        this._totalDuration = Math.max(0, this._options.totalDuration);
+        this._totalDuration = Math.floor(Math.max(0, this._options.totalDuration));
         if (this._totalDuration === 0) {
             Logger.Error("The total duration can not be 0. Nothing would be displayed.");
             return;
