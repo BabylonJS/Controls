@@ -81,6 +81,58 @@ export class Resizer extends BaseControl {
     }
 
     /**
+     * Creates an offscreen texture if the chosen size to render to.
+     * @param size defines the The chosen size of the texture on GPU.
+     * @returns The Babylon texture to be used in other controls for instance. Be carefull, the texture might not be ready
+     * as soon as you get it.
+     */
+    public createOffscreenTexture(size: { width: number, height: number }, samplingMode = Constants.TEXTURE_BILINEAR_SAMPLINGMODE): BaseTexture {
+        // Creates an offscreen texture to render to.
+        const outputTexture = this.engine.createRenderTargetTexture(size, { 
+            format: Constants.TEXTUREFORMAT_RGBA,
+            generateDepthBuffer: false,
+            generateMipMaps: false,
+            generateStencilBuffer: false,
+            samplingMode,
+            type: Constants.TEXTURETYPE_UNSIGNED_BYTE
+         });
+         // Ensure it is not ready so far.
+         outputTexture.isReady = false;
+
+         // Wraps the texture in a more friendly one.
+        const texture = new BaseTexture(null);
+        texture._texture = outputTexture;
+
+        return texture;
+    }
+
+    /**
+     * Resizes an input babylon texture into a texture created with the createOffscreenTexture function.
+     * This is helpfull in realtime use cases. The content of the outputTexture will be updated.
+     * @param inputTexture defines the Base texture to resize.
+     * @param outputTexture defines the Babylon texture to resize into.
+     */
+    public resizeToTexture(inputTexture: BaseTexture, outputTexture: BaseTexture): void {
+        // Sets the output texture.
+        this.engine.bindFramebuffer(outputTexture.getInternalTexture());
+
+        // Sets the viewport to the render target texture size.
+        this._effectRenderer.setViewport();
+
+        // Render the texture as a full target quad.
+        this._render(inputTexture);
+
+        // Unsets the output texture.
+        this.engine.unBindFramebuffer(outputTexture.getInternalTexture());
+
+        // Resets the viewport to the canvas size.
+        this._effectRenderer.setViewport();
+
+        // Notify that the texture is ready for consumption.
+        outputTexture.getInternalTexture().isReady = true;
+    }
+
+    /**
      * This will return a Babylon texture resized to a chosen size.
      * @param textureData defines the picture input we want to resize. It can be the url of a texture, another canvas or a video element.
      * @param size defines the The chosen size of the texture on GPU.
@@ -92,41 +144,17 @@ export class Resizer extends BaseControl {
         const inputTexture = elementToTexture(this.engine, textureData, "input", this._generateMipMaps, this._textureFiltering, false);
 
         // Creates an offscreen texture to render to.
-        const outputTexture = this.engine.createRenderTargetTexture(size, { 
-            format: Constants.TEXTUREFORMAT_RGBA,
-            generateDepthBuffer: false,
-            generateMipMaps: false,
-            generateStencilBuffer: false,
-            samplingMode: Constants.TEXTURE_BILINEAR_SAMPLINGMODE,
-            type: Constants.TEXTURETYPE_UNSIGNED_BYTE
-         });
-         // Ensure it is not ready so far.
-         outputTexture.isReady = false;
+        const outputTexture = this.createOffscreenTexture(size);
 
         // Simple render function using the effect wrapper as a simple pass through of
         // the input texture. The main difference with the previous function is that it renders
         // to an offscreen texture.
         const render = () => {
-            // Sets the output texture.
-            this.engine.bindFramebuffer(outputTexture);
-
-            // Sets the viewport to the render target texture size.
-            this._effectRenderer.setViewport();
-
-            // Render the texture as a full target quad.
-            this._render(inputTexture);
-
-            // Unsets the output texture.
-            this.engine.unBindFramebuffer(outputTexture);
-
-            // Resets the viewport to the canvas size.
-            this._effectRenderer.setViewport();
-
-            // Notify that the texture is ready for consumption.
-            outputTexture.isReady = true;
+            // Renders to the texture.
+            this.resizeToTexture(inputTexture, outputTexture);
 
             // Free up input and output resources.
-            this.engine._releaseFramebufferObjects(outputTexture);
+            this.engine._releaseFramebufferObjects(outputTexture.getInternalTexture());
             inputTexture.dispose();
         }
 
@@ -139,11 +167,7 @@ export class Resizer extends BaseControl {
 
         this.engine.runRenderLoop(checkIsReady);
 
-        // Wraps the lower level texture in a more friendly one.
-        const texture = new BaseTexture(null);
-        texture._texture = outputTexture;
-
-        return texture;
+        return outputTexture;
     }
 
     private _render(inputTexture: BaseTexture): void {
