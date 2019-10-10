@@ -95,12 +95,14 @@ export class Resizer extends BaseControl {
             generateStencilBuffer: false,
             samplingMode,
             type: Constants.TEXTURETYPE_UNSIGNED_BYTE
-         });
-         // Ensure it is not ready so far.
-         outputTexture.isReady = false;
+        });
+        // Ensure it is not ready so far.
+        outputTexture.isReady = false;
 
          // Wraps the texture in a more friendly one.
         const texture = new BaseTexture(null);
+        texture.wrapU = Constants.TEXTURE_CLAMP_ADDRESSMODE;
+        texture.wrapV = Constants.TEXTURE_CLAMP_ADDRESSMODE;
         texture._texture = outputTexture;
 
         return texture;
