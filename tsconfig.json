@@ -5,6 +5,7 @@
         "lib": ["es5", "es6", "dom"],
         "moduleResolution": "node",
         "sourceMap": true,
+        "importHelpers": true,
         "types" : []
     }
 }
