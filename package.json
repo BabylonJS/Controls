@@ -1,6 +1,6 @@
 {
     "name": "@babylonjs/controls",
-    "version": "1.0.0-beta.1",
+    "version": "1.0.0-alpha.1",
     "description": "Babylon.js controls are a set of regular web controls that used hardware accelerated rendering through Babylon.js to provide blazing fast dedicated controls.",
     "author": {
         "name": "David CATUHE"
