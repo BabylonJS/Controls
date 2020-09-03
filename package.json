@@ -40,7 +40,7 @@
     "devDependencies": {
         "@babylonjs/core": "^4.2.0-alpha.11",
         "ts-loader": "^5.3.3",
-        "typescript": "^3.4.5",
+        "typescript": "^3.6.3",
         "webpack": "^4.32.2",
         "webpack-cli": "^3.3.2",
         "webpack-dev-server": "^3.11.0"
