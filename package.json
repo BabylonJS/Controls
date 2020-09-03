@@ -38,7 +38,7 @@
         "netlifyDist": "webpack --env=prod"
     },
     "devDependencies": {
-        "@babylonjs/core": "^4.1.0-beta.20",
+        "@babylonjs/core": "^4.2.0-alpha.11",
         "ts-loader": "^5.3.3",
         "typescript": "^3.4.5",
         "webpack": "^4.32.2",
@@ -49,6 +49,6 @@
         "tslib": "^1.10.0"
     },
     "peerDependencies": {
-        "@babylonjs/core": ">=4.1.0-beta.20"
+        "@babylonjs/core": ">=4.2.0-alpha.11"
     }
 }
