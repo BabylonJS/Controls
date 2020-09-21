@@ -8,6 +8,8 @@ import { ShaderConfiguration } from "./shader";
 import { BaseControl } from "../coreControls/baseControl";
 import { elementToTexture } from "../coreControls/elementToTexture";
 
+import "@babylonjs/core/Engines/Extensions/engine.renderTarget";
+
 /**
  * Represents a resizer control leveraging WebGL to speed up resizing images.
  * 

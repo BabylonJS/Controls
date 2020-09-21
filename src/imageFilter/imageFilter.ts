@@ -9,6 +9,8 @@ import { Logger } from "@babylonjs/core/Misc/logger";
 import { BaseControl } from "../coreControls/baseControl";
 import { elementToTexture } from "../coreControls/elementToTexture";
 
+import "@babylonjs/core/Engines/Extensions/engine.renderTarget";
+
 /**
  * Defines a set of options provided to the image filter control.
  */
