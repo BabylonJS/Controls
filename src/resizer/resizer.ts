@@ -8,6 +8,8 @@ import { ShaderConfiguration } from "./shader";
 import { BaseControl } from "../coreControls/baseControl";
 import { elementToTexture } from "../coreControls/elementToTexture";
 
+import "@babylonjs/core/Engines/Extensions/engine.renderTarget";
+
 /**
  * Represents a resizer control leveraging WebGL to speed up resizing images.
  * 
@@ -68,8 +70,11 @@ export class Resizer extends BaseControl {
                     // Once the input is ready, Render the texture as a full target quad.
                     this._render(inputTexture);
 
-                    // Free up memory resources from the input.
-                    inputTexture.dispose();
+                    // Only dispose if needed
+                    if (!(textureData instanceof BaseTexture)) {
+                        // Free up memory resources from the input.
+                        inputTexture.dispose();
+                    }
 
                     // Notify the promise of the overall completion.
                     success();
