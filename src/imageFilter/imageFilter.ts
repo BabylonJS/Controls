@@ -1,6 +1,8 @@
 import { ThinEngine } from "@babylonjs/core/Engines/thinEngine";
 import { EffectWrapper, EffectRenderer } from "@babylonjs/core/Materials/effectRenderer";
-import { BaseTexture } from "@babylonjs/core/Materials/Textures/baseTexture";
+import { ThinTexture } from "@babylonjs/core/Materials/Textures/thinTexture";
+import { ThinRenderTargetTexture } from "@babylonjs/core/Materials/Textures/thinRenderTargetTexture";
+
 import { Constants } from "@babylonjs/core/Engines/constants";
 import { PostProcess } from "@babylonjs/core/PostProcesses/postProcess";
 import { Effect } from "@babylonjs/core/Materials/effect";
@@ -78,7 +80,7 @@ export class ImageFilter extends BaseControl {
      * @param filter defines the effect to use to filter the image.
      * @returns a promise to know when the rendering is done.
      */
-    public filter(textureData: BaseTexture | HTMLCanvasElement | HTMLVideoElement | string, filter: PostProcess | EffectWrapper): Promise<null> {
+    public filter(textureData: ThinTexture | HTMLCanvasElement | HTMLVideoElement | string, filter: PostProcess | EffectWrapper): Promise<void> {
         // Converts the texture data to an actual babylon.js texture.
         const inputTexture = elementToTexture(this.engine, textureData, "input", this._generateMipMaps, this._textureFiltering);
 
@@ -112,28 +114,29 @@ export class ImageFilter extends BaseControl {
      * @returns The Babylon texture to be used in other controls for instance. Be carefull, the texture might not be ready
      * as soon as you get it.
      */
-    public getFilteredTexture(textureData: BaseTexture | HTMLCanvasElement | HTMLVideoElement | string, size: { width: number, height: number }, filter: PostProcess | EffectWrapper): BaseTexture {
+    public getFilteredTexture(textureData: ThinTexture | HTMLCanvasElement | HTMLVideoElement | string, size: { width: number, height: number }, filter: PostProcess | EffectWrapper): ThinTexture {
         // Converts the texture data to an actual babylon.js texture.
         const inputTexture = elementToTexture(this.engine, textureData, "input", this._generateMipMaps, this._textureFiltering);
 
         // Creates an offscreen texture to render to.
-        const outputTexture = this.engine.createRenderTargetTexture(size, { 
+        const outputTexture = new ThinRenderTargetTexture(this.engine, size, { 
             format: Constants.TEXTUREFORMAT_RGBA,
             generateDepthBuffer: false,
             generateMipMaps: false,
             generateStencilBuffer: false,
             samplingMode: Constants.TEXTURE_BILINEAR_SAMPLINGMODE,
             type: Constants.TEXTURETYPE_UNSIGNED_BYTE
-         });
-         // Ensure it is not ready so far.
-         outputTexture.isReady = false;
+        });
+
+        // Ensure it is not ready so far.
+        outputTexture._texture.isReady = false;
 
         // Simple render function using the effect wrapper as a simple pass through of
         // the input texture. The main difference with the previous function is that it renders
         // to an offscreen texture.
         const render = () => {
             // Sets the output texture.
-            this.engine.bindFramebuffer(outputTexture);
+            this.engine.bindFramebuffer(outputTexture.renderTarget);
 
             // Sets the viewport to the render target texture size.
             this._effectRenderer.setViewport();
@@ -142,16 +145,16 @@ export class ImageFilter extends BaseControl {
             this.render(inputTexture, filter);
 
             // Unsets the output texture.
-            this.engine.unBindFramebuffer(outputTexture);
+            this.engine.unBindFramebuffer(outputTexture.renderTarget);
 
             // Resets the viewport to the canvas size.
             this._effectRenderer.setViewport();
 
             // Notify that the texture is ready for consumption.
-            outputTexture.isReady = true;
+            outputTexture._texture.isReady = true;
 
             // Free up input and output resources.
-            this.engine._releaseFramebufferObjects(outputTexture);
+            outputTexture.dispose(true);
             inputTexture.dispose();
         }
 
@@ -165,11 +168,7 @@ export class ImageFilter extends BaseControl {
 
         this.engine.runRenderLoop(checkIsReady);
 
-        // Wraps the lower level texture in a more friendly one.
-        const texture = new BaseTexture(null);
-        texture._texture = outputTexture;
-
-        return texture;
+        return outputTexture;
     }
 
     /**
@@ -179,7 +178,7 @@ export class ImageFilter extends BaseControl {
      * @param inputTexture defines the babylon texture to use as an input.
      * @param filter defines the effect to use to filter the image.
      */
-    public render(inputTexture: BaseTexture, filter: PostProcess | EffectWrapper): void {
+    public render(inputTexture: ThinTexture, filter: PostProcess | EffectWrapper): void {
         if (!filter) {
             Logger.Error("Please, specify at least a post process or an effectWrapper in the options.");
             return;
@@ -190,15 +189,14 @@ export class ImageFilter extends BaseControl {
         }
 
         let effect: Effect;
-        if (filter instanceof PostProcess) {
+        if (filter instanceof EffectWrapper) {
+            effect = filter.effect;
+            this._effectRenderer.applyEffectWrapper(filter);
+        }
+        else {
             effect = filter.getEffect();
             this._effectRenderer.bindBuffers(effect)
             filter.apply();
-
-        }
-        else if (filter instanceof EffectWrapper) {
-            effect = filter.effect;
-            this._effectRenderer.applyEffectWrapper(filter);
         }
 
         effect.setTexture("textureSampler", inputTexture);

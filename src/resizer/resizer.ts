@@ -1,7 +1,8 @@
 import { ThinEngine } from "@babylonjs/core/Engines/thinEngine";
 import { EffectWrapper, EffectRenderer } from "@babylonjs/core/Materials/effectRenderer";
-import { BaseTexture } from "@babylonjs/core/Materials/Textures/baseTexture";
 import { Constants } from "@babylonjs/core/Engines/constants";
+import { ThinTexture } from "@babylonjs/core/Materials/Textures/thinTexture";
+import { ThinRenderTargetTexture } from "@babylonjs/core/Materials/Textures/thinRenderTargetTexture";
 
 import { ShaderConfiguration } from "./shader";
 
@@ -56,7 +57,7 @@ export class Resizer extends BaseControl {
      * @param input defines the picture input we want to resize. It can be the url of a texture, another canvas or a video element.
      * @returns a promise to know when the rendering is done.
      */
-    public resize(textureData: BaseTexture | HTMLCanvasElement | HTMLVideoElement | string): Promise<null> {
+    public resize(textureData: ThinTexture | HTMLCanvasElement | HTMLVideoElement | string): Promise<void> {
         // Converts the texture data to an actual babylon.js texture.
         const inputTexture = elementToTexture(this.engine, textureData, "input", this._generateMipMaps, this._textureFiltering, false);
 
@@ -71,7 +72,7 @@ export class Resizer extends BaseControl {
                     this._render(inputTexture);
 
                     // Only dispose if needed
-                    if (!(textureData instanceof BaseTexture)) {
+                    if (!(textureData instanceof ThinTexture)) {
                         // Free up memory resources from the input.
                         inputTexture.dispose();
                     }
@@ -91,9 +92,9 @@ export class Resizer extends BaseControl {
      * @returns The Babylon texture to be used in other controls for instance. Be carefull, the texture might not be ready
      * as soon as you get it.
      */
-    public createOffscreenTexture(size: { width: number, height: number }, samplingMode = Constants.TEXTURE_BILINEAR_SAMPLINGMODE): BaseTexture {
+    public createOffscreenTexture(size: { width: number, height: number }, samplingMode = Constants.TEXTURE_BILINEAR_SAMPLINGMODE): ThinRenderTargetTexture {
         // Creates an offscreen texture to render to.
-        const outputTexture = this.engine.createRenderTargetTexture(size, { 
+        const outputTexture = new ThinRenderTargetTexture(this.engine, size, { 
             format: Constants.TEXTUREFORMAT_RGBA,
             generateDepthBuffer: false,
             generateMipMaps: false,
@@ -101,16 +102,11 @@ export class Resizer extends BaseControl {
             samplingMode,
             type: Constants.TEXTURETYPE_UNSIGNED_BYTE
         });
-        // Ensure it is not ready so far.
-        outputTexture.isReady = false;
+        outputTexture._texture.isReady = false;
+        outputTexture.wrapU = Constants.TEXTURE_CLAMP_ADDRESSMODE;
+        outputTexture.wrapV = Constants.TEXTURE_CLAMP_ADDRESSMODE;
 
-         // Wraps the texture in a more friendly one.
-        const texture = new BaseTexture(null);
-        texture.wrapU = Constants.TEXTURE_CLAMP_ADDRESSMODE;
-        texture.wrapV = Constants.TEXTURE_CLAMP_ADDRESSMODE;
-        texture._texture = outputTexture;
-
-        return texture;
+        return outputTexture;
     }
 
     /**
@@ -119,9 +115,9 @@ export class Resizer extends BaseControl {
      * @param inputTexture defines the Base texture to resize.
      * @param outputTexture defines the Babylon texture to resize into.
      */
-    public resizeToTexture(inputTexture: BaseTexture, outputTexture: BaseTexture): void {
+    public resizeToTexture(inputTexture: ThinTexture, outputTexture: ThinRenderTargetTexture): void {
         // Sets the output texture.
-        this.engine.bindFramebuffer(outputTexture.getInternalTexture());
+        this.engine.bindFramebuffer(outputTexture.renderTarget);
 
         // Sets the viewport to the render target texture size.
         this._effectRenderer.setViewport();
@@ -130,13 +126,13 @@ export class Resizer extends BaseControl {
         this._render(inputTexture);
 
         // Unsets the output texture.
-        this.engine.unBindFramebuffer(outputTexture.getInternalTexture());
+        this.engine.unBindFramebuffer(outputTexture.renderTarget);
 
         // Resets the viewport to the canvas size.
         this._effectRenderer.setViewport();
 
         // Notify that the texture is ready for consumption.
-        outputTexture.getInternalTexture().isReady = true;
+        outputTexture._texture.isReady = true;
     }
 
     /**
@@ -146,7 +142,7 @@ export class Resizer extends BaseControl {
      * @returns The Babylon texture to be used in other controls for instance. Be carefull, the texture might not be ready
      * as soon as you get it.
      */
-    public getResizedTexture(textureData: BaseTexture | HTMLCanvasElement | HTMLVideoElement | string, size: { width: number, height: number }): BaseTexture {
+    public getResizedTexture(textureData: ThinTexture | HTMLCanvasElement | HTMLVideoElement | string, size: { width: number, height: number }): ThinTexture {
         // Converts the texture data to an actual babylon.js texture.
         const inputTexture = elementToTexture(this.engine, textureData, "input", this._generateMipMaps, this._textureFiltering, false);
 
@@ -161,7 +157,7 @@ export class Resizer extends BaseControl {
             this.resizeToTexture(inputTexture, outputTexture);
 
             // Free up input and output resources.
-            this.engine._releaseFramebufferObjects(outputTexture.getInternalTexture());
+            outputTexture.dispose(true);
             inputTexture.dispose();
         }
 
@@ -177,7 +173,7 @@ export class Resizer extends BaseControl {
         return outputTexture;
     }
 
-    private _render(inputTexture: BaseTexture): void {
+    private _render(inputTexture: ThinTexture): void {
         this._effectRenderer.applyEffectWrapper(this._effectWrapper);
         this._effectWrapper.effect.setTexture("toResize", inputTexture);
         this._effectRenderer.draw();

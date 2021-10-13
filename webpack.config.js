@@ -4,7 +4,7 @@ var DIST_DIR = path.resolve(__dirname, "./www");
 var DEV_DIR = path.resolve(__dirname, "./.temp");
 
  var buildConfig = function(env) {
-    var isProd = env === "prod";
+    const isProd = env.prod === true;
     return {
         context: __dirname,
         entry: {
@@ -15,12 +15,12 @@ var DEV_DIR = path.resolve(__dirname, "./.temp");
         },
         output: {
             path: (isProd ? DIST_DIR : DEV_DIR) + "/scripts/",
-            publicPath: "www/scripts/",
             filename: "[name].js",
+            publicPath: '/scripts/',
         },
-        devtool: isProd ? "none" : "source-map",
+        devtool: isProd ? false : 'source-map',
         devServer: {
-            openPage: '/www'
+            static: ['www'],
         },
         resolve: {
             extensions: [".ts", ".js"]
