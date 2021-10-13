@@ -1,7 +1,6 @@
 import { ThinEngine } from "@babylonjs/core/Engines/thinEngine";
 import { EffectWrapper, EffectRenderer } from "@babylonjs/core/Materials/effectRenderer";
-import { BaseTexture } from "@babylonjs/core/Materials/Textures/baseTexture";
-import { Texture } from "@babylonjs/core/Materials/Textures/texture";
+import { ThinTexture } from "@babylonjs/core/Materials/Textures/thinTexture";
 import { Constants } from "@babylonjs/core/Engines/constants";
 import { Logger } from "@babylonjs/core/Misc/logger";
 import { Scalar } from "@babylonjs/core/Maths/math.scalar";
@@ -39,7 +38,7 @@ export interface ITimelineOptions {
      * 
      * The return value is passed through the done function to allow async operations.
      */
-    getThumbnailCallback: (time: number, done: (input: BaseTexture | HTMLCanvasElement | HTMLVideoElement | string) => void) => void;
+    getThumbnailCallback: (time: number, done: (input: ThinTexture | HTMLCanvasElement | HTMLVideoElement | string) => void) => void;
     /**
      * Defines whether the closest existing/loaded thumbnail should be use in place of the loading texture.
      * True by default.
@@ -61,8 +60,8 @@ export class Timeline extends BaseControl {
 
     private _effectRenderer: EffectRenderer;
     private _effectWrapper: EffectWrapper;
-    private _loadingThumbnail: Texture;
-    private _thumbnails: { [timespan: number]: BaseTexture };
+    private _loadingThumbnail: ThinTexture;
+    private _thumbnails: { [timespan: number]: ThinTexture };
     private _thumbnailsLoading: { [timespan: number]: boolean };
 
     private _totalThumbnails: number;
@@ -192,7 +191,7 @@ export class Timeline extends BaseControl {
      * @param time defines the time the thumbnail should be used at.
      * @returns the thumbnail texture.
      */
-    public addThumbnail(textureData: BaseTexture | HTMLCanvasElement | HTMLVideoElement | string, time: number): BaseTexture {
+    public addThumbnail(textureData: ThinTexture | HTMLCanvasElement | HTMLVideoElement | string, time: number): ThinTexture {
         // Converts the texture data to an actual babylon.js texture.
         let thumbnail = elementToTexture(this.engine, textureData, "" + time);
 
@@ -400,7 +399,8 @@ export class Timeline extends BaseControl {
 
     private _initializeTextures(): void {
         // Prepares the loading thumbnail.
-        this._loadingThumbnail = new Texture(this._options.loadingTextureURI, this.engine, true, true, Constants.TEXTURE_BILINEAR_SAMPLINGMODE);
+        const internalTexture = this.engine.createTexture(this._options.loadingTextureURI, true, true, null, Constants.TEXTURE_BILINEAR_SAMPLINGMODE);
+        this._loadingThumbnail = new ThinTexture(internalTexture);
         // And the thumbnails cache.
         this._thumbnails = { };
         this._thumbnailsLoading = { };
@@ -423,7 +423,7 @@ export class Timeline extends BaseControl {
         this._effectRenderer.setViewport();
     }
 
-    private _getTexture(time: number): BaseTexture {
+    private _getTexture(time: number): ThinTexture {
         // Only gets rounded time close to the granularity.
         time = Math.floor(time);
 
@@ -452,7 +452,7 @@ export class Timeline extends BaseControl {
         return this._getLoadingThumbnail(time);
     }
 
-    private _getLoadingThumbnail(time: number): BaseTexture {
+    private _getLoadingThumbnail(time: number): ThinTexture {
         // Returns loading thumbnail if closest match has been disabled.
         if (!this._options.useClosestThumbnailAsLoadingTexture) {
             return this._loadingThumbnail;
