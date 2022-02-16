@@ -8,7 +8,7 @@ jobs:
 - job: Deploy
   displayName: 'Build and Publish'
   pool:
-    vmImage: 'Ubuntu-16.04'
+    vmImage: 'Ubuntu-latest'
     demands: npm
   steps:
   - script: 'npm install'
