@@ -50,21 +50,25 @@ export function elementToTexture(engine: ThinEngine,
             }, 500);
         }
 
-        if (textureData instanceof HTMLVideoElement && textureData.readyState < textureData.HAVE_ENOUGH_DATA) {
-            const checkIsReady = (() => {
-                if ((<any>textureData).readyState < textureData.HAVE_ENOUGH_DATA) {
-                    return;
-                }
-                engine.stopRenderLoop(checkIsReady);
+        // If on a video element, wait for the video to be ready before updating the texture.
+        if (!!(textureData as HTMLVideoElement).getVideoPlaybackQuality) {
+            const videoElement = textureData as HTMLVideoElement;
+            if (videoElement.readyState < videoElement.HAVE_ENOUGH_DATA) {
+                const checkIsReady = (() => {
+                    if (videoElement.readyState < videoElement.HAVE_ENOUGH_DATA) {
+                        return;
+                    }
+                    engine.stopRenderLoop(checkIsReady);
+                    htmlElementTexture.update(!invertY);
+                    onTextureUpdated();
+                }).bind(this);
+
+                engine.runRenderLoop(checkIsReady);
+            }
+            else {
                 htmlElementTexture.update(!invertY);
                 onTextureUpdated();
-            }).bind(this);
-
-            engine.runRenderLoop(checkIsReady);
-        }
-        else if (textureData instanceof HTMLVideoElement) {
-            htmlElementTexture.update(!invertY);
-            onTextureUpdated();
+            }
         }
         else {
             // Canvas element are considered already ready to be uploaded to GPU.
