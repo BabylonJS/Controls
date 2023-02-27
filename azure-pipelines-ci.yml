@@ -11,7 +11,7 @@ jobs:
 - job: WhatsNewUpdate
   displayName: '1. What s New Update'
   pool:
-    vmImage: 'Ubuntu-16.04'
+    vmImage: 'Ubuntu-latest'
     demands: npm
   steps:
   - script: 'npm install'
@@ -25,7 +25,7 @@ jobs:
 - job: TscBuild
   displayName: '2. Tsc Build'
   pool:
-    vmImage: 'Ubuntu-16.04'
+    vmImage: 'Ubuntu-latest'
     demands: npm
   steps:
   - script: 'npm install'
