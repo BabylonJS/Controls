@@ -22,4 +22,4 @@ jobs:
     inputs:
       command: 'custom'
       customCommand: 'publish --tag preview --access public'
-      customEndpoint: 'BabylonNpm'
+      customEndpoint: 'NPMWithAccessToken'
