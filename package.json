@@ -1,6 +1,6 @@
 {
     "name": "@babylonjs/controls",
-    "version": "2.0.0-alpha.2",
+    "version": "2.1.0",
     "description": "Babylon.js controls are a set of regular web controls that used hardware accelerated rendering through Babylon.js to provide blazing fast dedicated controls.",
     "author": {
         "name": "David CATUHE"
@@ -38,9 +38,9 @@
         "netlifyDist": "webpack --env=prod"
     },
     "devDependencies": {
-        "@babylonjs/core": "^5.0.0",
+        "@babylonjs/core": "^7.8.1",
         "ts-loader": "^9.2.6",
-        "typescript": "^4.4.3",
+        "typescript": "^5.4.5",
         "webpack": "^5.58.1",
         "webpack-cli": "^4.9.0",
         "webpack-dev-server": "^4.3.1"
@@ -49,6 +49,6 @@
         "tslib": "^2.3.1"
     },
     "peerDependencies": {
-        "@babylonjs/core": ">=5.0.0"
+        "@babylonjs/core": ">=7.8.1"
     }
 }
