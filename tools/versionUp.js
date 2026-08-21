@@ -48,13 +48,14 @@ function versionUp() {
             throw err;
         }
 
-        console.log("Current NPM Registry Version:", stdout);
+        const npmVersion = stdout.trim();
+        console.log("Current NPM Registry Version:", npmVersion);
 
         const packageText = fs.readFileSync("package.json");
         const packageJSON = JSON.parse(packageText);
         console.log("Current package.json Version:", packageJSON.version);
 
-        const newVersion = getNextVersion(stdout, packageJSON.version);
+        const newVersion = getNextVersion(npmVersion, packageJSON.version);
 
         console.log("New Requested Version:", newVersion);
 
