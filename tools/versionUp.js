@@ -1,25 +1,52 @@
 const fs = require('fs');
 const { exec } = require('child_process');
 
-exec("npm view @babylonjs/controls dist-tags.preview", (err, stdout, stderr) => {
-    if (err) {
-        console.error(err);
-        throw err;
+function parseVersion(version) {
+    const match = version.trim().match(/^(\d+)\.(\d+)\.(\d+)(?:[-+].*)?$/);
+    if (!match) {
+        throw new Error(`Invalid version: ${version}`);
     }
 
-    console.log("Current NPM Registry Version:", stdout);
+    return {
+        major: Number(match[1]),
+        minor: Number(match[2]),
+        patch: Number(match[3])
+    };
+}
 
-    const version = stdout;
-    const spl = version.split(".");
-    spl[spl.length - 1]++;
-    const newVersion = spl.join(".");
+function getNextVersion(npmVersion, packageVersion) {
+    const npm = parseVersion(npmVersion);
+    const currentPackage = parseVersion(packageVersion);
 
-    console.log("New Requested Version:", newVersion);
+    if (npm.major !== currentPackage.major || npm.minor !== currentPackage.minor) {
+        return packageVersion;
+    }
 
-    const packageText = fs.readFileSync("package.json");
+    return `${npm.major}.${npm.minor}.${npm.patch + 1}`;
+}
 
-    const packageJSON = JSON.parse(packageText);
-    packageJSON.version = newVersion;
+function versionUp() {
+    exec("npm view @babylonjs/controls dist-tags.preview", (err, stdout) => {
+        if (err) {
+            console.error(err);
+            throw err;
+        }
 
-    fs.writeFileSync("package.json", JSON.stringify(packageJSON, null, 4));
-});
+        console.log("Current NPM Registry Version:", stdout);
+
+        const packageText = fs.readFileSync("package.json");
+        const packageJSON = JSON.parse(packageText);
+        const newVersion = getNextVersion(stdout, packageJSON.version);
+
+        console.log("New Requested Version:", newVersion);
+
+        packageJSON.version = newVersion;
+        fs.writeFileSync("package.json", JSON.stringify(packageJSON, null, 4));
+    });
+}
+
+if (require.main === module) {
+    versionUp();
+}
+
+module.exports = { getNextVersion };

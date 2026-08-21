@@ -31,6 +31,7 @@
     "scripts": {
         "build": "tsc --inlineSources --sourceMap true --declaration true --outDir ./dist",
         "versionUp": "node tools/versionUp.js",
+        "test:versionUp": "node tools/versionUp.test.js",
         "preRelease": "node tools/preRelease.js",
         "start": "npx webpack-dev-server --open",
         "devServer": "npx webpack-dev-server",
