@@ -52,6 +52,8 @@ function versionUp() {
 
         const packageText = fs.readFileSync("package.json");
         const packageJSON = JSON.parse(packageText);
+        console.log("Current package.json Version:", packageJSON.version);
+
         const newVersion = getNextVersion(stdout, packageJSON.version);
 
         console.log("New Requested Version:", newVersion);
