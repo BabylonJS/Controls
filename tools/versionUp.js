@@ -2,15 +2,18 @@ const fs = require('fs');
 const { exec } = require('child_process');
 
 function parseVersion(version) {
-    const match = version.trim().match(/^(\d+)\.(\d+)\.(\d+)(?:[-+].*)?$/);
+    const normalizedVersion = version.trim();
+    const match = normalizedVersion.match(/^(\d+)\.(\d+)\.(\d+)(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/);
     if (!match) {
         throw new Error(`Invalid version: ${version}`);
     }
 
     return {
+        raw: normalizedVersion,
         major: Number(match[1]),
         minor: Number(match[2]),
-        patch: Number(match[3])
+        patch: Number(match[3]),
+        prerelease: match[4]
     };
 }
 
@@ -18,8 +21,25 @@ function getNextVersion(npmVersion, packageVersion) {
     const npm = parseVersion(npmVersion);
     const currentPackage = parseVersion(packageVersion);
 
-    if (npm.major !== currentPackage.major || npm.minor !== currentPackage.minor) {
-        return packageVersion;
+    if (
+        npm.major !== currentPackage.major ||
+        npm.minor !== currentPackage.minor ||
+        npm.patch !== currentPackage.patch
+    ) {
+        return currentPackage.raw;
+    }
+
+    if (npm.prerelease) {
+        const identifiers = npm.prerelease.split(".");
+        const lastIdentifierIndex = identifiers.length - 1;
+        const lastIdentifier = identifiers[lastIdentifierIndex];
+
+        if (!/^\d+$/.test(lastIdentifier)) {
+            throw new Error(`Cannot increment prerelease version: ${npm.raw}`);
+        }
+
+        identifiers[lastIdentifierIndex] = String(Number(lastIdentifier) + 1);
+        return `${npm.major}.${npm.minor}.${npm.patch}-${identifiers.join(".")}`;
     }
 
     return `${npm.major}.${npm.minor}.${npm.patch + 1}`;

@@ -3,14 +3,24 @@ const { getNextVersion } = require("./versionUp");
 
 const cases = [
     {
-        npmVersion: "2.2.3\n",
+        npmVersion: "2.2.0\n",
         packageVersion: "2.2.0",
-        expected: "2.2.4"
+        expected: "2.2.1"
     },
     {
         npmVersion: "2.2.0-alpha.6\n",
         packageVersion: "2.2.0",
-        expected: "2.2.1"
+        expected: "2.2.0-alpha.7"
+    },
+    {
+        npmVersion: "2.0.0-alpha.6\n",
+        packageVersion: "2.0.0",
+        expected: "2.0.0-alpha.7"
+    },
+    {
+        npmVersion: "2.2.3\n",
+        packageVersion: "2.2.0",
+        expected: "2.2.0"
     },
     {
         npmVersion: "2.0.0-alpha.6\n",
