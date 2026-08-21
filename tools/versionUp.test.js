@@ -20,7 +20,7 @@ const cases = [
     {
         npmVersion: "2.2.3\n",
         packageVersion: "2.2.0",
-        expected: "2.2.0"
+        expected: "2.2.4"
     },
     {
         npmVersion: "2.0.0-alpha.6\n",

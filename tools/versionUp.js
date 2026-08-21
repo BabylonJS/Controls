@@ -21,11 +21,7 @@ function getNextVersion(npmVersion, packageVersion) {
     const npm = parseVersion(npmVersion);
     const currentPackage = parseVersion(packageVersion);
 
-    if (
-        npm.major !== currentPackage.major ||
-        npm.minor !== currentPackage.minor ||
-        npm.patch !== currentPackage.patch
-    ) {
+    if (npm.major !== currentPackage.major || npm.minor !== currentPackage.minor) {
         return currentPackage.raw;
     }
 
